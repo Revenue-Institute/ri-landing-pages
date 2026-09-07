@@ -1,0 +1,71 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  background: #08090a;
+  color: #f3f4f1;
+  -webkit-font-smoothing: antialiased;
+}
+
+a {
+  color: #5be0a5;
+  text-decoration: none;
+}
+a:hover {
+  color: #f3f4f1;
+}
+
+summary {
+  list-style: none;
+  cursor: pointer;
+}
+summary::-webkit-details-marker {
+  display: none;
+}
+
+::selection {
+  background: #5be0a5;
+  color: #08090a;
+}
+
+input,
+select,
+textarea {
+  font-family: "IBM Plex Mono", monospace;
+}
+
+@keyframes pulse {
+  0%,
+  100% {
+    opacity: 0.4;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+@keyframes flow {
+  to {
+    stroke-dashoffset: -24;
+  }
+}
+
+.hover-light:hover {
+  color: #f3f4f1;
+}
+.hover-white:hover {
+  background: #f3f4f1;
+}
+.hover-opacity:hover {
+  opacity: 1;
+}
+.focus-green:focus {
+  border-color: #5be0a5;
+}
+
+.pulse-dot {
+  animation: 2.6s ease-in-out 0s infinite normal none running pulse;
+}

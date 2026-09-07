@@ -1,0 +1,11 @@
+node_modules/
+.next/
+out/
+build/
+.DS_Store
+*.pem
+npm-debug.log*
+.env*.local
+vercel*.log
+tsconfig.tsbuildinfo
+pro-services-v1.html
