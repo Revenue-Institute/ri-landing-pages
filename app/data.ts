@@ -250,7 +250,7 @@ export const verticals: Vertical[] = rawVerticals.map((v) => {
 export const adGroups: Record<string, AdGroup> = {
   "AI Process Automation": {
     eyebrow: "AI process automation for professional services",
-    headline: "The process eating your margin, running as software.",
+    headline: "Consultants hand you a deck. We hand you a running AI system.",
     subhead:
       "We evaluate which manual workflow costs you most, build the automation on your real data, and run it after go-live — live in 45 days.",
     points: [
