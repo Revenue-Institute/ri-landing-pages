@@ -44,7 +44,7 @@ export default async function Page({ searchParams }: PageProps) {
 
       <Header />
       <Hero ad={ad} />
-      <LogoBar />
+      <StepsSection />
       <VerticalProvider>
         <AnswerSection />
         <LadderSection />
@@ -86,8 +86,8 @@ function Header() {
           <Image
             src="/logos/revenue-institute.png"
             alt="Revenue Institute"
-            width={84}
-            height={26}
+            width={120}
+            height={37}
             priority
             style={{ display: "block" }}
           />
@@ -145,7 +145,7 @@ function Hero({ ad }: { ad: (typeof adGroups)[string] }) {
             "radial-gradient(ellipse at center, rgba(91,224,165,0.11), rgba(8,9,10,0) 66%)",
         }}
       />
-      <div style={{ position: "relative", maxWidth: 1320, margin: "0 auto", padding: "64px 48px 88px" }}>
+      <div style={{ position: "relative", maxWidth: 1320, margin: "0 auto", padding: "64px 48px 48px" }}>
         <div
           style={{
             display: "flex",
@@ -247,6 +247,16 @@ function Hero({ ad }: { ad: (typeof adGroups)[string] }) {
           <ContactForm id="hero-form" title={ad.formTitle} hint={ad.fieldHint} />
         </div>
 
+        <LogoBar />
+      </div>
+    </section>
+  );
+}
+
+function StepsSection() {
+  return (
+    <section style={{ borderTop: "1px solid #14171A" }}>
+      <div style={{ maxWidth: 1320, margin: "0 auto", padding: "64px 48px" }}>
         <div
           style={{
             display: "flex",
@@ -260,76 +270,76 @@ function Hero({ ad }: { ad: (typeof adGroups)[string] }) {
             textAlign: "left",
           }}
         >
-          {[
-            { num: "01", title: "Evaluate", desc: "We rank the work a system can take over — by ROI, not by ease." },
-            { num: "02", title: "Build", desc: "A working system on your data and rules. Not a demo." },
-            { num: "03", title: "Operate", desc: "We run it after go-live and answer for what it produces." },
-          ].map((step, i) => (
-            <div
-              key={i}
-              style={{
-                flex: "1 1 260px",
-                minWidth: 0,
-                padding: "38px 34px",
-                background: "#0C0F10",
-              }}
-            >
-              <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 26 }}>
-                <span style={{ fontFamily: MONO, fontSize: 10.5, letterSpacing: "0.14em", color: "#5BE0A5" }}>
-                  {step.num}
-                </span>
-                <span
-                  style={{
-                    flex: 1,
-                    height: 1,
-                    background: "linear-gradient(90deg, #5BE0A5, #1A2C24)",
-                  }}
-                />
-              </div>
-              <div style={{ fontSize: 21, fontWeight: 500, letterSpacing: "-0.022em", marginBottom: 10 }}>
-                {step.title}
-              </div>
-              <p style={{ fontSize: 15, lineHeight: 1.6, color: "#8D9490", margin: 0 }}>{step.desc}</p>
-            </div>
-          ))}
+        {[
+          { num: "01", title: "Evaluate", desc: "We rank the work a system can take over — by ROI, not by ease." },
+          { num: "02", title: "Build", desc: "A working system on your data and rules. Not a demo." },
+          { num: "03", title: "Operate", desc: "We run it after go-live and answer for what it produces." },
+        ].map((step, i) => (
           <div
+            key={i}
             style={{
-              flex: "1 1 240px",
+              flex: "1 1 260px",
               minWidth: 0,
               padding: "38px 34px",
-              background: "#0D1512",
-              display: "flex",
-              flexDirection: "column",
-              justifyContent: "center",
+              background: "#0C0F10",
             }}
           >
-            <div
-              style={{
-                fontSize: 44,
-                lineHeight: 1,
-                letterSpacing: "-0.045em",
-                fontWeight: 500,
-                color: "#5BE0A5",
-              }}
-            >
-              45
+            <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 26 }}>
+              <span style={{ fontFamily: MONO, fontSize: 10.5, letterSpacing: "0.14em", color: "#5BE0A5" }}>
+                {step.num}
+              </span>
+              <span
+                style={{
+                  flex: 1,
+                  height: 1,
+                  background: "linear-gradient(90deg, #5BE0A5, #1A2C24)",
+                }}
+              />
             </div>
-            <div style={{ fontSize: 15, color: "#A9AFAB", marginTop: 10, lineHeight: 1.5 }}>
-              days to a live system
+            <div style={{ fontSize: 21, fontWeight: 500, letterSpacing: "-0.022em", marginBottom: 10 }}>
+              {step.title}
             </div>
-            <div
-              style={{
-                fontFamily: MONO,
-                fontSize: 11,
-                color: "#5F6764",
-                marginTop: 16,
-                paddingTop: 14,
-                borderTop: "1px solid #17251F",
-              }}
-            >
-              ~5 hrs from your team
-            </div>
+            <p style={{ fontSize: 15, lineHeight: 1.6, color: "#8D9490", margin: 0 }}>{step.desc}</p>
           </div>
+        ))}
+        <div
+          style={{
+            flex: "1 1 240px",
+            minWidth: 0,
+            padding: "38px 34px",
+            background: "#0D1512",
+            display: "flex",
+            flexDirection: "column",
+            justifyContent: "center",
+          }}
+        >
+          <div
+            style={{
+              fontSize: 44,
+              lineHeight: 1,
+              letterSpacing: "-0.045em",
+              fontWeight: 500,
+              color: "#5BE0A5",
+            }}
+          >
+            45
+          </div>
+          <div style={{ fontSize: 15, color: "#A9AFAB", marginTop: 10, lineHeight: 1.5 }}>
+            days to a live system
+          </div>
+          <div
+            style={{
+              fontFamily: MONO,
+              fontSize: 11,
+              color: "#5F6764",
+              marginTop: 16,
+              paddingTop: 14,
+              borderTop: "1px solid #17251F",
+            }}
+          >
+            ~5 hrs from your team
+          </div>
+        </div>
         </div>
       </div>
     </section>
@@ -337,24 +347,33 @@ function Hero({ ad }: { ad: (typeof adGroups)[string] }) {
 }
 
 function LogoBar() {
-  // Display height x natural dimensions → compute display width
   const logos = [
-    { src: "/logos/berry-law.png", alt: "Berry Law", w: 126, h: 30, opacity: 0.58 },
-    { src: "/logos/manely-firm.png", alt: "The Manely Firm", w: 30, h: 30, opacity: 0.75, radius: 6 },
-    { src: "/logos/inline-logo.svg", alt: "", w: 86, h: 30, opacity: 0.58 },
-    { src: "/logos/lawtrades.svg", alt: "Lawtrades", w: 54, h: 19, opacity: 0.58 },
-    { src: "/logos/qualigence.png", alt: "Qualigence", w: 30, h: 30, opacity: 0.75, radius: 6 },
-    { src: "/logos/production-theory.png", alt: "Production Theory", w: 89, h: 22, opacity: 0.58 },
-    { src: "/logos/edward-jones.png", alt: "Edward Jones", w: 30, h: 30, opacity: 0.75, radius: 6 },
-    { src: "/logos/cbre.png", alt: "CBRE", w: 30, h: 30, opacity: 0.75, radius: 6 },
+    { src: "/logos/berry-law.png", alt: "Berry Law", w: 170, h: 41, opacity: 0.58 },
+    { src: "/logos/manely-firm.png", alt: "The Manely Firm", w: 41, h: 41, opacity: 0.75, radius: 8 },
+    { src: "/logos/inline-logo.svg", alt: "", w: 116, h: 41, opacity: 0.58 },
+    { src: "/logos/lawtrades.svg", alt: "Lawtrades", w: 73, h: 26, opacity: 0.58 },
+    { src: "/logos/qualigence.png", alt: "Qualigence", w: 41, h: 41, opacity: 0.75, radius: 8 },
+    { src: "/logos/production-theory.png", alt: "Production Theory", w: 120, h: 30, opacity: 0.58 },
+    { src: "/logos/edward-jones.png", alt: "Edward Jones", w: 41, h: 41, opacity: 0.75, radius: 8 },
+    { src: "/logos/cbre.png", alt: "CBRE", w: 41, h: 41, opacity: 0.75, radius: 8 },
   ];
   return (
-    <section style={{ borderTop: "1px solid #14171A", borderBottom: "1px solid #14171A" }}>
+    <div style={{ marginTop: 48 }}>
       <div
         style={{
-          maxWidth: 1320,
-          margin: "0 auto",
-          padding: "30px 48px",
+          fontFamily: MONO,
+          fontSize: 11,
+          letterSpacing: "0.14em",
+          textTransform: "uppercase",
+          color: "#5F6764",
+          textAlign: "center",
+          marginBottom: 20,
+        }}
+      >
+        Trusted by industry leaders
+      </div>
+      <div
+        style={{
           display: "flex",
           alignItems: "center",
           gap: 46,
@@ -374,7 +393,7 @@ function LogoBar() {
           />
         ))}
       </div>
-    </section>
+    </div>
   );
 }
 
@@ -1035,8 +1054,8 @@ function Footer() {
             <Image
               src="/logos/revenue-institute.png"
               alt="Revenue Institute"
-              width={84}
-              height={26}
+              width={120}
+              height={37}
               style={{ display: "block" }}
             />
           </div>
