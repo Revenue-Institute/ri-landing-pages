@@ -1,7 +1,9 @@
 "use client";
 
-import { createContext, useContext, useState, useCallback } from "react";
+import { createContext, useContext, useId, useState, useCallback } from "react";
 import { verticals, type Vertical } from "./data";
+
+const MONO = "var(--font-mono), monospace";
 
 interface VerticalCtx {
   index: number;
@@ -17,9 +19,7 @@ export function VerticalProvider({ children }: { children: React.ReactNode }) {
   const setIndex = useCallback((i: number) => {
     setIndexState(i);
   }, []);
-  return (
-    <Ctx.Provider value={{ index, setIndex, active }}>{children}</Ctx.Provider>
-  );
+  return <Ctx.Provider value={{ index, setIndex, active }}>{children}</Ctx.Provider>;
 }
 
 function useVertical() {
@@ -28,29 +28,43 @@ function useVertical() {
   return ctx;
 }
 
-export function VerticalButtons() {
+/**
+ * Rendered twice on the page against one shared selection, so the firm type a
+ * visitor picks carries down the page. Each instance is given its own group
+ * label so the second one reads as the same choice rather than a new,
+ * unexplained one, and `aria-pressed` exposes which option is active.
+ */
+export function VerticalButtons({ groupLabel }: { groupLabel: string }) {
   const { index, setIndex } = useVertical();
+  const labelId = useId();
   return (
-    <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-      {verticals.map((v, i) => (
-        <button
-          key={v.name}
-          onClick={() => setIndex(i)}
-          style={{
-            fontFamily: "var(--font-grotesk), sans-serif",
-            fontSize: 14,
-            padding: "11px 18px",
-            borderRadius: 100,
-            cursor: "pointer",
-            border: `1px solid ${i === index ? "#5BE0A5" : "#26292C"}`,
-            background: i === index ? "#5BE0A5" : "transparent",
-            color: i === index ? "#08090A" : "#8D9490",
-            transition: "all 0.15s ease",
-          }}
-        >
-          {v.name}
-        </button>
-      ))}
+    <div role="group" aria-labelledby={labelId}>
+      <span id={labelId} className="sr-only">
+        {groupLabel}
+      </span>
+      <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+        {verticals.map((v, i) => (
+          <button
+            key={v.name}
+            type="button"
+            onClick={() => setIndex(i)}
+            aria-pressed={i === index}
+            style={{
+              fontSize: 14,
+              minHeight: 44,
+              padding: "0 18px",
+              borderRadius: 100,
+              cursor: "pointer",
+              border: `1px solid ${i === index ? "var(--accent)" : "#2A2E31"}`,
+              background: i === index ? "var(--accent)" : "transparent",
+              color: i === index ? "var(--bg)" : "var(--text-body)",
+              transition: "background 0.15s ease, color 0.15s ease, border-color 0.15s ease",
+            }}
+          >
+            {v.name}
+          </button>
+        ))}
+      </div>
     </div>
   );
 }
@@ -58,10 +72,64 @@ export function VerticalButtons() {
 export function WorkflowComparison() {
   const { active } = useVertical();
   const wf = active.workflow;
+
+  const column = (
+    heading: string,
+    rows: typeof wf.before,
+    opts: { bg: string; headColor: string; track: string; fill: string; valueColor: string; line: string }
+  ) => (
+    <div style={{ flex: "1 1 340px", minWidth: 0, background: opts.bg, padding: "clamp(24px, 3vw, 34px) clamp(20px, 3vw, 40px)" }}>
+      <h4
+        style={{
+          fontSize: 14.5,
+          fontWeight: 400,
+          color: opts.headColor,
+          marginBottom: 22,
+        }}
+      >
+        {heading}
+      </h4>
+      <div style={{ display: "grid", gap: 0 }}>
+        {rows.map((row, k) => (
+          <div
+            key={k}
+            style={{
+              display: "grid",
+              gridTemplateColumns: "minmax(0, 1fr) auto",
+              gap: 18,
+              alignItems: "center",
+              padding: "15px 0",
+              borderBottom: `1px solid ${opts.line}`,
+            }}
+          >
+            <div style={{ minWidth: 0 }}>
+              <div style={{ fontSize: 16, color: "var(--text-body)", marginBottom: 10 }}>
+                {row.step}
+              </div>
+              <div aria-hidden="true" style={{ height: 8, borderRadius: 100, background: opts.track }}>
+                <div style={{ height: 8, borderRadius: 100, background: opts.fill, width: row.w }} />
+              </div>
+            </div>
+            <span
+              style={{
+                fontSize: 15,
+                color: opts.valueColor,
+                whiteSpace: "nowrap",
+                fontFamily: MONO,
+              }}
+            >
+              {row.value}
+            </span>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+
   return (
     <div
       style={{
-        border: "1px solid #1A1E21",
+        border: "1px solid var(--line-3)",
         borderRadius: 20,
         background: "linear-gradient(180deg, #0E1113, #0A0C0D)",
         overflow: "hidden",
@@ -69,24 +137,18 @@ export function WorkflowComparison() {
     >
       <div
         style={{
-          padding: "30px 40px",
-          borderBottom: "1px solid #14171A",
+          padding: "clamp(22px, 2.6vw, 30px) clamp(20px, 3vw, 40px)",
+          borderBottom: "1px solid var(--line)",
           display: "flex",
           justifyContent: "space-between",
           alignItems: "baseline",
-          gap: 20,
+          gap: 16,
           flexWrap: "wrap",
         }}
       >
-        <div
-          style={{
-            fontSize: 20,
-            fontWeight: 500,
-            letterSpacing: "-0.022em",
-          }}
-        >
+        <h3 style={{ fontSize: "clamp(1.125rem, 2vw, 1.25rem)", fontWeight: 500, letterSpacing: "-0.022em" }}>
           One workflow, before and after
-        </div>
+        </h3>
         <div
           style={{
             display: "flex",
@@ -94,118 +156,32 @@ export function WorkflowComparison() {
             gap: 16,
             flexWrap: "wrap",
             fontSize: 14.5,
-            color: "#6C736F",
+            color: "var(--text-dim)",
           }}
         >
           <span>{wf.subject}</span>
-          <span
-            style={{
-              fontFamily: "var(--font-mono), monospace",
-              fontSize: 11,
-              color: "#5F6764",
-            }}
-          >
+          <span style={{ fontFamily: MONO, fontSize: 11, color: "var(--text-faint)" }}>
             bars = relative time spent
           </span>
         </div>
       </div>
-      <div style={{ display: "flex", flexWrap: "wrap", gap: 1, background: "#14171A" }}>
-        <div style={{ flex: "1 1 340px", minWidth: 0, background: "#0B0D0E", padding: "34px 40px" }}>
-          <div style={{ fontSize: 14.5, color: "#6C736F", marginBottom: 24 }}>Before</div>
-          <div style={{ display: "grid", gap: 0 }}>
-            {wf.before.map((row, k) => (
-              <div
-                key={k}
-                style={{
-                  display: "grid",
-                  gridTemplateColumns: "minmax(0, 1fr) auto",
-                  gap: 18,
-                  alignItems: "center",
-                  padding: "15px 0",
-                  borderBottom: "1px solid #14171A",
-                }}
-              >
-                <div style={{ minWidth: 0 }}>
-                  <div style={{ fontSize: 16, color: "#A9AFAB", marginBottom: 10 }}>{row.step}</div>
-                  <div
-                    style={{
-                      height: 8,
-                      borderRadius: 100,
-                      background: "#14171A",
-                    }}
-                  >
-                    <div
-                      style={{
-                        height: 8,
-                        borderRadius: 100,
-                        background: "#3A4048",
-                        width: row.w,
-                      }}
-                    />
-                  </div>
-                </div>
-                <span
-                  style={{
-                    fontSize: 15,
-                    color: "#6C736F",
-                    whiteSpace: "nowrap",
-                    fontFamily: "var(--font-mono), monospace",
-                  }}
-                >
-                  {row.value}
-                </span>
-              </div>
-            ))}
-          </div>
-        </div>
-        <div style={{ flex: "1 1 340px", minWidth: 0, background: "#0D1512", padding: "34px 40px" }}>
-          <div style={{ fontSize: 14.5, color: "#5BE0A5", marginBottom: 24 }}>After</div>
-          <div style={{ display: "grid", gap: 0 }}>
-            {wf.after.map((row, k) => (
-              <div
-                key={k}
-                style={{
-                  display: "grid",
-                  gridTemplateColumns: "minmax(0, 1fr) auto",
-                  gap: 18,
-                  alignItems: "center",
-                  padding: "15px 0",
-                  borderBottom: "1px solid #17251F",
-                }}
-              >
-                <div style={{ minWidth: 0 }}>
-                  <div style={{ fontSize: 16, color: "#A9AFAB", marginBottom: 10 }}>{row.step}</div>
-                  <div
-                    style={{
-                      height: 8,
-                      borderRadius: 100,
-                      background: "#14201B",
-                    }}
-                  >
-                    <div
-                      style={{
-                        height: 8,
-                        borderRadius: 100,
-                        background: "#5BE0A5",
-                        width: row.w,
-                      }}
-                    />
-                  </div>
-                </div>
-                <span
-                  style={{
-                    fontSize: 15,
-                    color: "#5BE0A5",
-                    whiteSpace: "nowrap",
-                    fontFamily: "var(--font-mono), monospace",
-                  }}
-                >
-                  {row.value}
-                </span>
-              </div>
-            ))}
-          </div>
-        </div>
+      <div style={{ display: "flex", flexWrap: "wrap", gap: 1, background: "var(--line)" }}>
+        {column("Before", wf.before, {
+          bg: "var(--bg-card)",
+          headColor: "var(--text-dim)",
+          track: "var(--line)",
+          fill: "#4A515A",
+          valueColor: "var(--text-dim)",
+          line: "var(--line)",
+        })}
+        {column("After", wf.after, {
+          bg: "var(--bg-green)",
+          headColor: "var(--accent)",
+          track: "#14201B",
+          fill: "var(--accent)",
+          valueColor: "var(--accent)",
+          line: "var(--line-green)",
+        })}
       </div>
     </div>
   );
@@ -216,7 +192,7 @@ export function IndustryPanel() {
   return (
     <div
       style={{
-        border: "1px solid #1A1E21",
+        border: "1px solid var(--line-3)",
         borderRadius: 20,
         background: "linear-gradient(180deg, #0E1113, #0A0C0D)",
         display: "flex",
@@ -228,14 +204,14 @@ export function IndustryPanel() {
         style={{
           flex: "1 1 460px",
           minWidth: 0,
-          padding: "44px 46px",
-          borderRight: "1px solid #14171A",
+          padding: "clamp(28px, 3.6vw, 44px) clamp(22px, 3.4vw, 46px)",
+          borderRight: "1px solid var(--line)",
         }}
       >
         <h3
           style={{
-            fontSize: 30,
-            lineHeight: 1.14,
+            fontSize: "clamp(1.375rem, 2.8vw, 1.875rem)",
+            lineHeight: 1.16,
             letterSpacing: "-0.032em",
             fontWeight: 500,
             margin: "0 0 8px",
@@ -243,19 +219,12 @@ export function IndustryPanel() {
         >
           {active.headline}
         </h3>
-        <div
-          style={{
-            fontFamily: "var(--font-mono), monospace",
-            fontSize: 11.5,
-            color: "#5BE0A5",
-            marginBottom: 30,
-          }}
-        >
+        <div style={{ fontFamily: MONO, fontSize: 11.5, color: "var(--accent)", marginBottom: 26 }}>
           {active.buyer}
         </div>
-        <div style={{ display: "grid", gap: 0 }}>
+        <ul style={{ display: "grid", gap: 0, listStyle: "none" }}>
           {active.bullets.map((b, k) => (
-            <div
+            <li
               key={k}
               style={{
                 display: "grid",
@@ -263,34 +232,28 @@ export function IndustryPanel() {
                 gap: 14,
                 alignItems: "start",
                 padding: "15px 0",
-                borderBottom: "1px solid #14171A",
+                borderBottom: "1px solid var(--line)",
               }}
             >
               <span
-                style={{
-                  color: "#5BE0A5",
-                  fontFamily: "var(--font-mono), monospace",
-                  fontSize: 12,
-                  lineHeight: 1.7,
-                }}
+                aria-hidden="true"
+                style={{ color: "var(--accent)", fontFamily: MONO, fontSize: 12, lineHeight: 1.7 }}
               >
                 →
               </span>
-              <span style={{ fontSize: 16, lineHeight: 1.6, color: "#A9AFAB" }}>{b}</span>
-            </div>
+              <span style={{ fontSize: 16, lineHeight: 1.6, color: "var(--text-body)" }}>{b}</span>
+            </li>
           ))}
-        </div>
+        </ul>
         <a
-          href="#hero-form"
+          href="#start-form"
+          className="tap hover-light"
           style={{
-            display: "inline-block",
-            marginTop: 28,
+            marginTop: 24,
             fontSize: 15,
-            color: "#F3F4F1",
-            borderBottom: "1px solid #5BE0A5",
-            paddingBottom: 3,
+            color: "var(--text)",
+            borderBottom: "1px solid var(--accent)",
           }}
-          className="hover-light"
         >
           {active.cta} →
         </a>
@@ -299,59 +262,53 @@ export function IndustryPanel() {
         style={{
           flex: "1 1 300px",
           minWidth: 0,
-          padding: "44px 40px",
+          padding: "clamp(28px, 3.6vw, 44px) clamp(22px, 3vw, 40px)",
           display: "flex",
           flexDirection: "column",
-          gap: 32,
+          gap: 28,
         }}
       >
         <div>
           <div
             style={{
-              fontSize: 42,
+              fontSize: "clamp(2rem, 3.8vw, 2.625rem)",
               lineHeight: 1,
               letterSpacing: "-0.04em",
               fontWeight: 500,
-              color: "#5BE0A5",
+              color: "var(--accent)",
             }}
           >
             {active.stat}
           </div>
-          <div
-            style={{
-              fontSize: 15,
-              color: "#8D9490",
-              marginTop: 12,
-              lineHeight: 1.5,
-            }}
-          >
+          <div style={{ fontSize: 15, color: "var(--text-muted)", marginTop: 12, lineHeight: 1.5 }}>
             {active.statLabel}
           </div>
         </div>
-        <div style={{ borderTop: "1px solid #17191B", paddingTop: 26 }}>
-          <div
+        <div style={{ borderTop: "1px solid var(--line-2)", paddingTop: 24 }}>
+          <h4
             style={{
-              fontFamily: "var(--font-mono), monospace",
+              fontFamily: MONO,
               fontSize: 10.5,
+              fontWeight: 400,
               letterSpacing: "0.12em",
               textTransform: "uppercase",
-              color: "#5F6764",
+              color: "var(--text-faint)",
               marginBottom: 14,
             }}
           >
             Systems we connect
-          </div>
+          </h4>
           <div style={{ display: "flex", flexWrap: "wrap", gap: 7 }}>
             {active.tools.map((t, k) => (
               <span
                 key={k}
                 style={{
-                  fontFamily: "var(--font-mono), monospace",
+                  fontFamily: MONO,
                   fontSize: 11.5,
-                  border: "1px solid #22262A",
+                  border: "1px solid #26292C",
                   padding: "6px 10px",
                   borderRadius: 100,
-                  color: "#8D9490",
+                  color: "var(--text-muted)",
                 }}
               >
                 {t}
@@ -359,22 +316,16 @@ export function IndustryPanel() {
             ))}
           </div>
         </div>
-        <div
-          style={{
-            borderTop: "1px solid #17191B",
-            paddingTop: 26,
-            marginTop: "auto",
-          }}
-        >
+        <div style={{ borderTop: "1px solid var(--line-2)", paddingTop: 24, marginTop: "auto" }}>
           <span
             style={{
               display: "inline-block",
-              fontFamily: "var(--font-mono), monospace",
+              fontFamily: MONO,
               fontSize: 10.5,
               letterSpacing: "0.1em",
               textTransform: "uppercase",
-              color: "#5BE0A5",
-              border: "1px solid #1E3A2D",
+              color: "var(--accent)",
+              border: "1px solid var(--accent-line)",
               background: "rgba(91,224,165,0.07)",
               padding: "6px 11px",
               borderRadius: 100,
@@ -383,14 +334,7 @@ export function IndustryPanel() {
           >
             {active.complianceTag}
           </span>
-          <div
-            style={{
-              fontFamily: "var(--font-mono), monospace",
-              fontSize: 11.5,
-              color: "#6C736F",
-              lineHeight: 1.8,
-            }}
-          >
+          <div style={{ fontFamily: MONO, fontSize: 11.5, color: "var(--text-dim)", lineHeight: 1.8 }}>
             {active.compliance}
           </div>
         </div>

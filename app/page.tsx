@@ -13,6 +13,31 @@ import { TrackLink } from "./TrackLink";
 const MONO: string = "var(--font-mono), monospace";
 const GROTESK: string = "var(--font-grotesk), 'Helvetica Neue', Helvetica, sans-serif";
 
+const PHONE = "+17342594800";
+const PHONE_DISPLAY = "734.259.4800";
+
+/**
+ * Google Ads lead-form policy expects an accessible privacy disclosure.
+ * Point this at the live policy on the main site.
+ */
+const PRIVACY_URL = "https://revenueinstitute.com/privacy-policy";
+
+/* Fluid type scale. Inline styles cannot hold media queries, so every
+   heading is expressed as a clamp between its mobile and desktop size. */
+const T = {
+  h1: "clamp(2.25rem, 6.4vw, 4.125rem)",
+  h2: "clamp(1.875rem, 4.6vw, 3.25rem)",
+  h2sm: "clamp(1.75rem, 4vw, 2.75rem)",
+  statement: "clamp(1.625rem, 3.6vw, 2.5rem)",
+  h3: "clamp(1.25rem, 2.2vw, 1.5625rem)",
+  h3lg: "clamp(1.25rem, 2.4vw, 1.625rem)",
+  quote: "clamp(1.25rem, 2.6vw, 1.75rem)",
+  statBig: "clamp(2.25rem, 4.6vw, 3.25rem)",
+  statMid: "clamp(1.875rem, 3.4vw, 2.625rem)",
+  subhead: "clamp(1.0625rem, 1.8vw, 1.25rem)",
+  lead: "clamp(1rem, 1.5vw, 1.125rem)",
+} as const;
+
 interface PageProps {
   searchParams: Promise<{ ad?: string; banner?: string }>;
 }
@@ -24,38 +49,81 @@ export default async function Page({ searchParams }: PageProps) {
   const showBanner = sp.banner !== "false";
 
   return (
-    <div style={{ fontFamily: GROTESK, overflowX: "hidden" }}>
+    /*
+     * No overflow-x here. It made overflow-y compute to `auto`, turning this
+     * div into a scroll container, which silently broke `position: sticky`
+     * on the header for the entire page.
+     */
+    <div style={{ fontFamily: GROTESK }}>
       {showBanner && (
         <div
           style={{
-            background: "#0D1512",
+            background: "var(--bg-green)",
             borderBottom: "1px solid #1A2C24",
-            padding: "11px 40px",
+            padding: "10px var(--pad-x)",
             textAlign: "center",
             fontSize: 13.5,
-            color: "#8D9490",
+            lineHeight: 1.5,
+            color: "var(--text-muted)",
           }}
         >
-          <span style={{ color: "#F3F4F1" }}>Talk to us about one process</span> · 30 minutes, no
-          pitch deck ·{" "}
-          <a href="#hero-form">book a call →</a>
+          <span style={{ color: "var(--text)" }}>Talk to us about one process</span>
+          <span className="banner-detail"> · 30 minutes, no pitch deck</span> ·{" "}
+          <TrackLink
+            event="LP - CTA Click"
+            params={{ cta: "book_a_call", location: "banner" }}
+            href="#hero-form"
+            style={{ display: "inline-block", padding: "6px 0" }}
+          >
+            book a call →
+          </TrackLink>
         </div>
       )}
 
       <Header />
-      <Hero ad={ad} />
-      <StepsSection />
-      <VerticalProvider>
-        <AnswerSection />
-        <LadderSection />
-        <ProofSection />
-        <ObjectionsSection />
-        <IndustriesSection />
-      </VerticalProvider>
-      <CompareSection />
-      <StartSection ad={ad} />
-      <FAQSection />
+
+      <main id="main">
+        <Hero ad={ad} />
+        <StepsSection />
+        <VerticalProvider>
+          <AnswerSection />
+          <LadderSection />
+          <ProofSection />
+          <ObjectionsSection />
+          <IndustriesSection />
+        </VerticalProvider>
+        <CompareSection />
+        <StartSection ad={ad} />
+        <FAQSection />
+      </main>
+
       <Footer />
+      <MobileActionBar />
+    </div>
+  );
+}
+
+/* Always-reachable conversion path on small screens. Without it the page
+   had stretches of seven screens with no call to action in reach. */
+function MobileActionBar() {
+  return (
+    <div className="mobile-cta">
+      <TrackLink
+        event="LP - CTA Click"
+        params={{ cta: "phone", location: "mobile_bar" }}
+        href={`tel:${PHONE}`}
+        className="mobile-cta-call"
+      >
+        Call
+      </TrackLink>
+      <TrackLink
+        event="LP - CTA Click"
+        params={{ cta: "talk_to_us", location: "mobile_bar" }}
+        href="#start-form"
+        className="mobile-cta-main"
+      >
+        Tell us the one process →
+      </TrackLink>
     </div>
   );
 }
@@ -67,22 +135,17 @@ function Header() {
         position: "sticky",
         top: 0,
         zIndex: 60,
-        background: "rgba(8,9,10,0.7)",
+        // Opaque enough to stay legible over the light comparison section
+        background: "rgba(8,9,10,0.88)",
         backdropFilter: "blur(16px)",
-        borderBottom: "1px solid #14171A",
+        borderBottom: "1px solid var(--line)",
       }}
     >
-      <div
-        style={{
-          maxWidth: 1320,
-          margin: "0 auto",
-          padding: "16px 48px",
-          display: "flex",
-          alignItems: "center",
-          gap: 44,
-        }}
-      >
-        <div style={{ display: "flex", alignItems: "center", marginRight: "auto" }}>
+      <div className="hdr-inner">
+        <a href="#main" className="sr-only">
+          Skip to content
+        </a>
+        <div className="hdr-logo" style={{ display: "flex", alignItems: "center" }}>
           <Image
             src="/logos/revenue-institute.png"
             alt="Revenue Institute"
@@ -95,25 +158,25 @@ function Header() {
         <TrackLink
           event="LP - CTA Click"
           params={{ cta: "phone_header", location: "header" }}
-          href="tel:+17342594800"
-          style={{ fontSize: 14, color: "#8D9490", marginLeft: "auto" }}
-          className="hover-light"
+          href={`tel:${PHONE}`}
+          className="hdr-phone tap hover-light"
+          aria-label={`Call Revenue Institute at ${PHONE_DISPLAY}`}
         >
-          734.259.4800
+          {PHONE_DISPLAY}
         </TrackLink>
         <TrackLink
           event="LP - CTA Click"
           params={{ cta: "talk_to_us", location: "header" }}
           href="#hero-form"
+          className="hdr-cta tap hover-white"
           style={{
             fontSize: 14,
             fontWeight: 500,
-            color: "#08090A",
-            background: "#5BE0A5",
-            padding: "11px 18px",
+            color: "var(--bg)",
+            background: "var(--accent)",
+            padding: "0 20px",
             borderRadius: 100,
           }}
-          className="hover-white"
         >
           Talk to us
         </TrackLink>
@@ -126,6 +189,7 @@ function Hero({ ad }: { ad: (typeof adGroups)[string] }) {
   return (
     <section style={{ position: "relative", overflow: "hidden" }}>
       <div
+        aria-hidden="true"
         style={{
           position: "absolute",
           inset: 0,
@@ -135,6 +199,7 @@ function Hero({ ad }: { ad: (typeof adGroups)[string] }) {
         }}
       />
       <div
+        aria-hidden="true"
         style={{
           position: "absolute",
           top: -300,
@@ -145,17 +210,16 @@ function Hero({ ad }: { ad: (typeof adGroups)[string] }) {
             "radial-gradient(ellipse at center, rgba(91,224,165,0.11), rgba(8,9,10,0) 66%)",
         }}
       />
-      <div style={{ position: "relative", maxWidth: 1320, margin: "0 auto", padding: "64px 48px 48px" }}>
-        <div
-          style={{
-            display: "flex",
-            gap: 56,
-            flexWrap: "wrap",
-            alignItems: "flex-start",
-            marginBottom: 72,
-          }}
-        >
-          <div style={{ flex: "1 1 500px", minWidth: 0 }}>
+      <div
+        className="wrap"
+        style={{
+          position: "relative",
+          paddingTop: "clamp(36px, 5vw, 64px)",
+          paddingBottom: "clamp(40px, 5vw, 48px)",
+        }}
+      >
+        <div className="hero-grid">
+          <div className="hero-copy">
             <div
               style={{
                 display: "inline-flex",
@@ -165,32 +229,34 @@ function Hero({ ad }: { ad: (typeof adGroups)[string] }) {
                 fontSize: 11,
                 letterSpacing: "0.14em",
                 textTransform: "uppercase",
-                color: "#8D9490",
-                border: "1px solid #1E2124",
+                color: "var(--text-muted)",
+                border: "1px solid var(--line-4)",
                 borderRadius: 100,
                 padding: "8px 16px",
-                marginBottom: 30,
+                marginBottom: 26,
               }}
             >
               <span
                 className="pulse-dot"
+                aria-hidden="true"
                 style={{
                   width: 5,
                   height: 5,
                   borderRadius: "50%",
-                  background: "rgb(91, 224, 165)",
+                  background: "var(--accent)",
+                  flexShrink: 0,
                 }}
               />
               <span>{ad.eyebrow}</span>
             </div>
             <h1
               style={{
-                fontSize: 66,
-                lineHeight: 1.0,
+                fontSize: T.h1,
+                lineHeight: 1.03,
                 letterSpacing: "-0.045em",
                 fontWeight: 500,
-                margin: "0 0 24px",
-                maxWidth: "20ch",
+                margin: "0 0 20px",
+                maxWidth: "21ch",
                 textWrap: "pretty" as const,
               }}
             >
@@ -198,18 +264,35 @@ function Hero({ ad }: { ad: (typeof adGroups)[string] }) {
             </h1>
             <p
               style={{
-                fontSize: 20,
+                fontSize: T.subhead,
                 lineHeight: 1.5,
-                color: "#A9AFAB",
-                margin: "0 0 32px",
+                color: "var(--text-body)",
+                margin: 0,
                 maxWidth: "48ch",
               }}
             >
               {ad.subhead}
             </p>
-            <div style={{ display: "grid", gap: 0, borderTop: "1px solid #1E2124", maxWidth: "52ch" }}>
+          </div>
+
+          {/* On mobile this sits directly under the headline, ahead of the
+              supporting bullets, so the form is reachable in one scroll. */}
+          <div className="hero-form-slot">
+            <ContactForm id="hero-form" title={ad.formTitle} hint={ad.fieldHint} />
+          </div>
+
+          <div className="hero-points">
+            <ul
+              style={{
+                display: "grid",
+                gap: 0,
+                borderTop: "1px solid var(--line-4)",
+                maxWidth: "52ch",
+                listStyle: "none",
+              }}
+            >
               {ad.points.map((p, i) => (
-                <div
+                <li
                   key={i}
                   style={{
                     display: "grid",
@@ -217,34 +300,45 @@ function Hero({ ad }: { ad: (typeof adGroups)[string] }) {
                     gap: 14,
                     alignItems: "start",
                     padding: "14px 0",
-                    borderBottom: "1px solid #17191B",
+                    borderBottom: "1px solid var(--line-2)",
                   }}
                 >
-                  <span style={{ color: "#5BE0A5", fontFamily: MONO, fontSize: 12, lineHeight: 1.6 }}>
+                  <span
+                    aria-hidden="true"
+                    style={{ color: "var(--accent)", fontFamily: MONO, fontSize: 12, lineHeight: 1.6 }}
+                  >
                     →
                   </span>
-                  <span style={{ fontSize: 16.5, lineHeight: 1.55, color: "#A9AFAB" }}>{p}</span>
-                </div>
+                  <span style={{ fontSize: 16.5, lineHeight: 1.55, color: "var(--text-body)" }}>
+                    {p}
+                  </span>
+                </li>
               ))}
-            </div>
+            </ul>
             <div
               style={{
                 display: "flex",
                 alignItems: "center",
-                gap: 12,
-                marginTop: 28,
+                gap: 10,
+                marginTop: 20,
                 fontSize: 15,
-                color: "#8D9490",
+                color: "var(--text-muted)",
+                flexWrap: "wrap",
               }}
             >
               Prefer the phone?{" "}
-              <a href="tel:+17342594800" style={{ fontSize: 17 }}>
-                734.259.4800
-              </a>
+              <TrackLink
+                event="LP - CTA Click"
+                params={{ cta: "phone", location: "hero" }}
+                href={`tel:${PHONE}`}
+                className="tap"
+                style={{ fontSize: 17 }}
+                aria-label={`Call Revenue Institute at ${PHONE_DISPLAY}`}
+              >
+                {PHONE_DISPLAY}
+              </TrackLink>
             </div>
           </div>
-
-          <ContactForm id="hero-form" title={ad.formTitle} hint={ad.fieldHint} />
         </div>
 
         <LogoBar />
@@ -254,92 +348,111 @@ function Hero({ ad }: { ad: (typeof adGroups)[string] }) {
 }
 
 function StepsSection() {
+  const steps = [
+    { num: "01", title: "Evaluate", desc: "We rank the work a system can take over by ROI, not by ease." },
+    { num: "02", title: "Build", desc: "A working system on your data and rules. Not a demo." },
+    { num: "03", title: "Operate", desc: "We run it after go-live and answer for what it produces." },
+  ];
   return (
-    <section style={{ borderTop: "1px solid #14171A" }}>
-      <div style={{ maxWidth: 1320, margin: "0 auto", padding: "64px 48px" }}>
+    <section style={{ borderTop: "1px solid var(--line)" }}>
+      <div className="wrap sec-y-sm">
+        <h2 className="sr-only">How an engagement works</h2>
         <div
           style={{
             display: "flex",
             gap: 1,
             flexWrap: "wrap",
             alignItems: "stretch",
-            border: "1px solid #1A1E21",
+            border: "1px solid var(--line-3)",
             borderRadius: 20,
-            background: "#14171A",
+            background: "var(--line)",
             overflow: "hidden",
             textAlign: "left",
           }}
         >
-        {[
-          { num: "01", title: "Evaluate", desc: "We rank the work a system can take over — by ROI, not by ease." },
-          { num: "02", title: "Build", desc: "A working system on your data and rules. Not a demo." },
-          { num: "03", title: "Operate", desc: "We run it after go-live and answer for what it produces." },
-        ].map((step, i) => (
-          <div
-            key={i}
-            style={{
-              flex: "1 1 260px",
-              minWidth: 0,
-              padding: "38px 34px",
-              background: "#0C0F10",
-            }}
-          >
-            <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 26 }}>
-              <span style={{ fontFamily: MONO, fontSize: 10.5, letterSpacing: "0.14em", color: "#5BE0A5" }}>
-                {step.num}
-              </span>
-              <span
+          {steps.map((step, i) => (
+            <div
+              key={i}
+              style={{
+                flex: "1 1 260px",
+                minWidth: 0,
+                padding: "clamp(26px, 3vw, 38px) clamp(22px, 2.6vw, 34px)",
+                background: "#0C0F10",
+              }}
+            >
+              <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 22 }}>
+                <span
+                  style={{
+                    fontFamily: MONO,
+                    fontSize: 10.5,
+                    letterSpacing: "0.14em",
+                    color: "var(--accent)",
+                  }}
+                >
+                  {step.num}
+                </span>
+                <span
+                  aria-hidden="true"
+                  style={{
+                    flex: 1,
+                    height: 1,
+                    background: "linear-gradient(90deg, #5BE0A5, #1A2C24)",
+                  }}
+                />
+              </div>
+              <h3
                 style={{
-                  flex: 1,
-                  height: 1,
-                  background: "linear-gradient(90deg, #5BE0A5, #1A2C24)",
+                  fontSize: "clamp(1.125rem, 1.9vw, 1.3125rem)",
+                  fontWeight: 500,
+                  letterSpacing: "-0.022em",
+                  marginBottom: 10,
                 }}
-              />
+              >
+                {step.title}
+              </h3>
+              <p style={{ fontSize: 15, lineHeight: 1.6, color: "var(--text-dim)", margin: 0 }}>
+                {step.desc}
+              </p>
             </div>
-            <div style={{ fontSize: 21, fontWeight: 500, letterSpacing: "-0.022em", marginBottom: 10 }}>
-              {step.title}
-            </div>
-            <p style={{ fontSize: 15, lineHeight: 1.6, color: "#8D9490", margin: 0 }}>{step.desc}</p>
-          </div>
-        ))}
-        <div
-          style={{
-            flex: "1 1 240px",
-            minWidth: 0,
-            padding: "38px 34px",
-            background: "#0D1512",
-            display: "flex",
-            flexDirection: "column",
-            justifyContent: "center",
-          }}
-        >
+          ))}
           <div
             style={{
-              fontSize: 44,
-              lineHeight: 1,
-              letterSpacing: "-0.045em",
-              fontWeight: 500,
-              color: "#5BE0A5",
+              flex: "1 1 240px",
+              minWidth: 0,
+              padding: "clamp(26px, 3vw, 38px) clamp(22px, 2.6vw, 34px)",
+              background: "var(--bg-green)",
+              display: "flex",
+              flexDirection: "column",
+              justifyContent: "center",
             }}
           >
-            45
+            <div
+              style={{
+                fontSize: "clamp(2rem, 3.6vw, 2.75rem)",
+                lineHeight: 1,
+                letterSpacing: "-0.045em",
+                fontWeight: 500,
+                color: "var(--accent)",
+              }}
+            >
+              45
+            </div>
+            <div style={{ fontSize: 15, color: "var(--text-body)", marginTop: 10, lineHeight: 1.5 }}>
+              days to a live system
+            </div>
+            <div
+              style={{
+                fontFamily: MONO,
+                fontSize: 11,
+                color: "var(--text-faint)",
+                marginTop: 16,
+                paddingTop: 14,
+                borderTop: "1px solid var(--line-green)",
+              }}
+            >
+              ~5 hrs from your team
+            </div>
           </div>
-          <div style={{ fontSize: 15, color: "#A9AFAB", marginTop: 10, lineHeight: 1.5 }}>
-            days to a live system
-          </div>
-          <div
-            style={{
-              fontFamily: MONO,
-              fontSize: 11,
-              color: "#5F6764",
-              marginTop: 16,
-              paddingTop: 14,
-              borderTop: "1px solid #17251F",
-            }}
-          >
-            ~5 hrs from your team
-          </div>
-        </div>
         </div>
       </div>
     </section>
@@ -348,35 +461,37 @@ function StepsSection() {
 
 function LogoBar() {
   const logos = [
-    { src: "/logos/berry-law.png", alt: "Berry Law", w: 170, h: 41, opacity: 0.58 },
-    { src: "/logos/manely-firm.png", alt: "The Manely Firm", w: 41, h: 41, opacity: 0.75, radius: 8 },
-    { src: "/logos/inline-logo.svg", alt: "", w: 116, h: 41, opacity: 0.58 },
-    { src: "/logos/lawtrades.svg", alt: "Lawtrades", w: 73, h: 26, opacity: 0.58 },
-    { src: "/logos/qualigence.png", alt: "Qualigence", w: 41, h: 41, opacity: 0.75, radius: 8 },
-    { src: "/logos/production-theory.png", alt: "Production Theory", w: 120, h: 30, opacity: 0.58 },
-    { src: "/logos/edward-jones.png", alt: "Edward Jones", w: 41, h: 41, opacity: 0.75, radius: 8 },
-    { src: "/logos/cbre.png", alt: "CBRE", w: 41, h: 41, opacity: 0.75, radius: 8 },
+    { src: "/logos/berry-law.png", alt: "Berry Law", w: 170, h: 41, opacity: 0.72 },
+    { src: "/logos/manely-firm.png", alt: "The Manely Firm", w: 41, h: 41, opacity: 0.85, radius: 8 },
+    // Intrinsic SVG is 442x58; the old 73x26 box squashed it out of ratio.
+    { src: "/logos/inline-logo.svg", alt: "Karbon", w: 116, h: 41, opacity: 0.72 },
+    { src: "/logos/lawtrades.svg", alt: "Lawtrades", w: 160, h: 21, opacity: 0.72 },
+    { src: "/logos/qualigence.png", alt: "Qualigence", w: 41, h: 41, opacity: 0.85, radius: 8 },
+    { src: "/logos/production-theory.png", alt: "Production Theory", w: 120, h: 30, opacity: 0.72 },
+    { src: "/logos/edward-jones.png", alt: "Edward Jones", w: 41, h: 41, opacity: 0.85, radius: 8 },
+    { src: "/logos/cbre.png", alt: "CBRE", w: 41, h: 41, opacity: 0.85, radius: 8 },
   ];
   return (
-    <div style={{ marginTop: 48 }}>
-      <div
+    <div style={{ marginTop: "clamp(36px, 4vw, 48px)" }}>
+      <h2
         style={{
           fontFamily: MONO,
           fontSize: 11,
+          fontWeight: 400,
           letterSpacing: "0.14em",
           textTransform: "uppercase",
-          color: "#5F6764",
+          color: "var(--text-faint)",
           textAlign: "center",
           marginBottom: 20,
         }}
       >
         Trusted by industry leaders
-      </div>
+      </h2>
       <div
         style={{
           display: "flex",
           alignItems: "center",
-          gap: 46,
+          gap: "clamp(24px, 3.4vw, 46px)",
           flexWrap: "wrap",
           justifyContent: "center",
         }}
@@ -388,7 +503,12 @@ function LogoBar() {
             alt={logo.alt}
             width={logo.w}
             height={logo.h}
-            style={{ opacity: logo.opacity, borderRadius: logo.radius || undefined }}
+            style={{
+              opacity: logo.opacity,
+              borderRadius: logo.radius || undefined,
+              height: "auto",
+              maxWidth: "100%",
+            }}
             className="hover-opacity"
           />
         ))}
@@ -398,82 +518,113 @@ function LogoBar() {
 }
 
 function AnswerSection() {
+  const legend = [
+    { bg: "#5BE0A5", label: "owns it" },
+    { bg: "repeating-linear-gradient(115deg, #2B4F3F 0 5px, #16191A 5px 10px)", label: "partial" },
+    { bg: "#2B4F3F", label: "advises only" },
+    { bg: "#16191A", label: "not their job" },
+  ];
+  const rows = [
+    { label: "Consultants", cells: ["#2B4F3F", "#16191A", "#16191A"] },
+    { label: "MSPs", cells: ["#16191A", "#16191A", "repeating-linear-gradient(115deg, #2B4F3F 0 5px, #16191A 5px 10px)"] },
+    { label: "AI vendors", cells: ["#16191A", "repeating-linear-gradient(115deg, #2B4F3F 0 5px, #16191A 5px 10px)", "#16191A"] },
+    { label: "Revenue Institute", highlight: true, cells: ["#5BE0A5", "#5BE0A5", "#5BE0A5"] },
+  ];
+  const cols = ["Evaluate", "Build", "Operate"];
+
   return (
     <section id="answer">
-      <div style={{ maxWidth: 1320, margin: "0 auto", padding: "128px 48px" }}>
-        <div style={{ fontSize: 15, color: "#5BE0A5", marginBottom: 30 }}>What does Revenue Institute do?</div>
-        <p
+      <div className="wrap sec-y">
+        <p style={{ fontSize: 15, color: "var(--accent)", marginBottom: 26 }}>
+          What does Revenue Institute do?
+        </p>
+        <h2
           style={{
-            fontSize: 40,
+            fontSize: T.statement,
             lineHeight: 1.24,
             letterSpacing: "-0.032em",
-            margin: "0 0 56px",
+            fontWeight: 500,
+            margin: "0 0 clamp(34px, 4vw, 56px)",
             maxWidth: "26ch",
             textWrap: "pretty" as const,
           }}
         >
-          We build the systems a firm runs on — then we <span style={{ color: "rgb(91, 224, 165)" }}>run them</span>.
-        </p>
+          We build the systems a firm runs on, then we{" "}
+          <span style={{ color: "var(--accent)" }}>run them</span>.
+        </h2>
 
-        {/* Comparison table */}
         <div
           style={{
-            border: "1px solid #1A1E21",
+            border: "1px solid var(--line-3)",
             borderRadius: 20,
-            background: "#0B0D0E",
-            padding: "34px 40px 30px",
+            background: "var(--bg-card)",
+            padding: "clamp(24px, 3vw, 34px) clamp(20px, 3vw, 40px) clamp(22px, 2.6vw, 30px)",
           }}
         >
           <div
-            style={{
-              display: "grid",
-              gridTemplateColumns: "minmax(0, 190px) repeat(3, minmax(0, 1fr))",
-              gap: 14,
-              alignItems: "end",
-              paddingBottom: 16,
-              borderBottom: "1px solid #17191B",
-            }}
+            className="owns-grid"
+            style={{ alignItems: "end", paddingBottom: 16, borderBottom: "1px solid var(--line-2)" }}
           >
-            <div style={{ fontFamily: MONO, fontSize: 10.5, letterSpacing: "0.14em", textTransform: "uppercase", color: "#5F6764" }}>
+            <div
+              className="owns-label"
+              style={{
+                fontFamily: MONO,
+                fontSize: 10.5,
+                letterSpacing: "0.14em",
+                textTransform: "uppercase",
+                color: "var(--text-faint)",
+              }}
+            >
               Who owns what
             </div>
-            {["Evaluate", "Build", "Operate"].map((label) => (
+            {cols.map((label) => (
               <div
                 key={label}
-                style={{ fontFamily: MONO, fontSize: 11, letterSpacing: "0.1em", textTransform: "uppercase", color: "#6C736F" }}
+                style={{
+                  fontFamily: MONO,
+                  fontSize: 11,
+                  letterSpacing: "0.1em",
+                  textTransform: "uppercase",
+                  color: "var(--text-dim)",
+                }}
               >
                 {label}
               </div>
             ))}
           </div>
-          {[
-            { label: "Consultants", cells: ["#2B4F3F", "#16191A", "#16191A"] },
-            { label: "MSPs", cells: ["#16191A", "#16191A", "repeating-linear-gradient(115deg, #2B4F3F 0 5px, #16191A 5px 10px)"] },
-            { label: "AI vendors", cells: ["#16191A", "repeating-linear-gradient(115deg, #2B4F3F 0 5px, #16191A 5px 10px)", "#16191A"] },
-            { label: "Revenue Institute", highlight: true, cells: ["#5BE0A5", "#5BE0A5", "#5BE0A5"] },
-          ].map((row, i) => (
+          {rows.map((row, i) => (
             <div
               key={i}
+              className="owns-grid"
               style={{
-                display: "grid",
-                gridTemplateColumns: "minmax(0, 190px) repeat(3, minmax(0, 1fr))",
-                gap: 14,
-                alignItems: "center",
-                padding: "20px 0",
-                borderBottom: i < 3 ? "1px solid #14171A" : "1px solid #14171A",
+                padding: "18px 0",
+                borderBottom: i < rows.length - 1 ? "1px solid var(--line)" : undefined,
               }}
             >
-              <div style={{ fontSize: 17, color: row.highlight ? "#F3F4F1" : "#8D9490", fontWeight: row.highlight ? 500 : undefined }}>
+              <div
+                className="owns-label"
+                style={{
+                  fontSize: 17,
+                  color: row.highlight ? "var(--text)" : "var(--text-muted)",
+                  fontWeight: row.highlight ? 500 : undefined,
+                }}
+              >
                 {row.label}
               </div>
               {row.cells.map((bg, j) => (
                 <div
                   key={j}
-                  style={{
-                    height: 10,
-                    borderRadius: 100,
-                    background: bg,
-                  }}
+                  role="img"
+                  aria-label={`${row.label}, ${cols[j]}: ${
+                    bg === "#5BE0A5"
+                      ? "owns it"
+                      : bg === "#2B4F3F"
+                        ? "advises only"
+                        : bg === "#16191A"
+                          ? "not their job"
+                          : "partial"
+                  }`}
+                  style={{ height: 10, borderRadius: 100, background: bg }}
                 />
               ))}
             </div>
@@ -481,35 +632,34 @@ function AnswerSection() {
           <div
             style={{
               display: "flex",
-              gap: 24,
+              gap: "clamp(14px, 2vw, 24px)",
               flexWrap: "wrap",
               marginTop: 22,
               paddingTop: 18,
-              borderTop: "1px solid #17191B",
+              borderTop: "1px solid var(--line-2)",
               fontFamily: MONO,
               fontSize: 11,
-              color: "#5F6764",
+              color: "var(--text-faint)",
             }}
           >
-            {[
-              { bg: "#5BE0A5", label: "owns it" },
-              { bg: "repeating-linear-gradient(115deg, #2B4F3F 0 5px, #16191A 5px 10px)", label: "partial" },
-              { bg: "#2B4F3F", label: "advises only" },
-              { bg: "#16191A", label: "not their job" },
-            ].map((item, i) => (
+            {legend.map((item, i) => (
               <span key={i} style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                <span style={{ width: 18, height: 7, borderRadius: 100, background: item.bg }} />
+                <span
+                  aria-hidden="true"
+                  style={{ width: 18, height: 7, borderRadius: 100, background: item.bg, flexShrink: 0 }}
+                />
                 {item.label}
               </span>
             ))}
           </div>
         </div>
 
-        {/* Vertical selector + workflow */}
-        <div style={{ marginTop: 88 }}>
-          <div style={{ fontSize: 15, color: "#6C736F", marginBottom: 18 }}>See it in your kind of firm</div>
+        <div style={{ marginTop: "clamp(52px, 6vw, 88px)" }}>
+          <h3 style={{ fontSize: 15, fontWeight: 400, color: "var(--text-dim)", marginBottom: 16 }}>
+            See it in your kind of firm
+          </h3>
           <div style={{ marginBottom: 20 }}>
-            <VerticalButtons />
+            <VerticalButtons groupLabel="Choose a firm type to see its workflow" />
           </div>
           <WorkflowComparison />
         </div>
@@ -520,38 +670,43 @@ function AnswerSection() {
 
 function IndustriesSection() {
   return (
-    <section id="industries" style={{ borderTop: "1px solid #14171A" }}>
-      <div style={{ maxWidth: 1320, margin: "0 auto", padding: "128px 48px" }}>
-        <div
-          style={{
-            display: "flex",
-            gap: 48,
-            flexWrap: "wrap",
-            alignItems: "flex-end",
-            marginBottom: 44,
-          }}
-        >
-          <div style={{ flex: "1 1 460px", minWidth: 0 }}>
-            <div style={{ fontSize: 15, color: "#6C736F", marginBottom: 26 }}>Built for your firm type</div>
+    <section id="industries" style={{ borderTop: "1px solid var(--line)" }}>
+      <div className="wrap sec-y">
+        <div className="sec-head has-aside">
+          <div style={{ minWidth: 0 }}>
+            <p style={{ fontSize: 15, color: "var(--text-dim)", marginBottom: 22 }}>
+              Built for your firm type
+            </p>
             <h2
               style={{
-                fontSize: 52,
-                lineHeight: 1.02,
+                fontSize: T.h2,
+                lineHeight: 1.04,
                 letterSpacing: "-0.04em",
                 fontWeight: 500,
                 margin: 0,
                 maxWidth: "20ch",
+                textWrap: "balance" as const,
               }}
             >
-              Your systems know what a matter is. Or they don't.
+              Your systems know what a matter is. Or they don&rsquo;t.
             </h2>
           </div>
-          <p style={{ flex: "1 1 320px", minWidth: 0, fontSize: 18, lineHeight: 1.6, color: "#8D9490", margin: 0, maxWidth: "40ch" }}>
-            Generic automation stops at the record. Ours is built around the unit of work you bill against.
+          <p
+            style={{
+              minWidth: 0,
+              fontSize: T.lead,
+              lineHeight: 1.6,
+              color: "var(--text-muted)",
+              margin: 0,
+              maxWidth: "40ch",
+            }}
+          >
+            Generic automation stops at the record. Ours is built around the unit of work you bill
+            against.
           </p>
         </div>
         <div style={{ marginBottom: 20 }}>
-          <VerticalButtons />
+          <VerticalButtons groupLabel="Choose a firm type to see how it is built" />
         </div>
         <IndustryPanel />
       </div>
@@ -560,16 +715,54 @@ function IndustriesSection() {
 }
 
 function LadderSection() {
+  const cards = [
+    {
+      num: "01 · entry",
+      title: "Process automation",
+      desc: "Your highest-cost manual workflow, automated end to end.",
+      bars: ["46%", "38%", "38%"],
+      colors: ["#5BE0A5", "#1A2C24", "#1A2C24"],
+      meta1: "fixed-bid",
+      meta2: "live in 10-20 days",
+    },
+    {
+      num: "02 · proof",
+      title: "Proof of concept",
+      desc: "Built on your rules and stack. If the math doesn't hold, we stop.",
+      bars: ["46%", "72%", "38%"],
+      colors: ["#1A2C24", "#5BE0A5", "#1A2C24"],
+      meta1: "your data",
+      meta2: "tied to a number",
+    },
+    {
+      num: "03 · operate",
+      title: "AI Operators",
+      desc: "Agents that own a role end to end, with a human on the calls that matter.",
+      bars: ["46%", "72%", "100%"],
+      colors: ["#1A2C24", "#1A2C24", "#5BE0A5"],
+      highlight: true,
+      tags: ["Intake coordinator", "Billing clerk", "Pipeline analyst"],
+      meta1: "run by us",
+      meta2: "supervised by you",
+    },
+  ];
+  const phases = [
+    { title: "Capture", weeks: "weeks 1-3" },
+    { title: "Orchestrate", weeks: "weeks 4-10" },
+    { title: "Run", weeks: "weeks 11-14" },
+    { title: "Expand", weeks: "day 100+" },
+  ];
+
   return (
-    <section id="ladder" style={{ borderTop: "1px solid #14171A" }}>
-      <div style={{ maxWidth: 1320, margin: "0 auto", padding: "128px 48px" }}>
-        <div style={{ display: "flex", gap: 48, flexWrap: "wrap", alignItems: "flex-end", marginBottom: 56 }}>
-          <div style={{ flex: "1 1 460px", minWidth: 0 }}>
-            <div style={{ fontSize: 15, color: "#6C736F", marginBottom: 26 }}>The ladder</div>
+    <section id="ladder" style={{ borderTop: "1px solid var(--line)" }}>
+      <div className="wrap sec-y">
+        <div className="sec-head has-aside">
+          <div style={{ minWidth: 0 }}>
+            <p style={{ fontSize: 15, color: "var(--text-dim)", marginBottom: 22 }}>The ladder</p>
             <h2
               style={{
-                fontSize: 52,
-                lineHeight: 1.02,
+                fontSize: T.h2,
+                lineHeight: 1.04,
                 letterSpacing: "-0.04em",
                 fontWeight: 500,
                 margin: 0,
@@ -579,59 +772,47 @@ function LadderSection() {
               Small entry. Compounding return.
             </h2>
           </div>
-          <p style={{ flex: "1 1 320px", minWidth: 0, fontSize: 18, lineHeight: 1.6, color: "#8D9490", margin: 0, maxWidth: "42ch" }}>
-            One painful process first. We expand only once the math holds — you never write the big check on faith.
+          <p
+            style={{
+              minWidth: 0,
+              fontSize: T.lead,
+              lineHeight: 1.6,
+              color: "var(--text-muted)",
+              margin: 0,
+              maxWidth: "42ch",
+            }}
+          >
+            One painful process first. We expand only once the math holds, so you never write the
+            big check on faith.
           </p>
         </div>
 
         <div style={{ display: "flex", gap: 16, flexWrap: "wrap", alignItems: "stretch" }}>
-          {[
-            {
-              num: "01 · entry",
-              title: "Process automation",
-              desc: "Your highest-cost manual workflow, automated end to end.",
-              bars: ["46%", "38%", "38%"],
-              colors: ["#5BE0A5", "#1A2C24", "#1A2C24"],
-              meta1: "fixed-bid",
-              meta2: "live in 10–20 days",
-            },
-            {
-              num: "02 · proof",
-              title: "Proof of concept",
-              desc: "Built on your rules and stack. If the math doesn't hold, we stop.",
-              bars: ["46%", "72%", "38%"],
-              colors: ["#1A2C24", "#5BE0A5", "#1A2C24"],
-              meta1: "your data",
-              meta2: "tied to a number",
-            },
-            {
-              num: "03 · operate",
-              title: "AI Operators",
-              desc: "Agents that own a role end to end — with a human on the calls that matter.",
-              bars: ["46%", "72%", "100%"],
-              colors: ["#1A2C24", "#1A2C24", "#5BE0A5"],
-              highlight: true,
-              tags: ["Intake coordinator", "Billing clerk", "Pipeline analyst"],
-              meta1: "run by us",
-              meta2: "supervised by you",
-            },
-          ].map((card, i) => (
+          {cards.map((card, i) => (
             <div
               key={i}
               style={{
                 flex: "1 1 300px",
                 minWidth: 0,
-                border: card.highlight ? "1px solid #1E3A2D" : "1px solid #1A1E21",
+                border: card.highlight ? "1px solid var(--accent-line)" : "1px solid var(--line-3)",
                 borderRadius: 18,
-                background: card.highlight ? "linear-gradient(180deg, #0D1512, #0A0C0D)" : "#0B0D0E",
-                padding: 32,
+                background: card.highlight
+                  ? "linear-gradient(180deg, #0D1512, #0A0C0D)"
+                  : "var(--bg-card)",
+                padding: "var(--card-pad)",
                 display: "flex",
                 flexDirection: "column",
               }}
             >
-              <div style={{ display: "flex", alignItems: "flex-end", gap: 5, height: 72, marginBottom: 30 }}>
+              <div
+                aria-hidden="true"
+                style={{ display: "flex", alignItems: "flex-end", gap: 5, height: 72, marginBottom: 26 }}
+              >
                 {card.bars.map((h, j) => (
-                  <span key={j} style={{ width: 22, height: h, background: card.colors[j], borderRadius: 3 }} />
+                  <span
+                    key={j}
+                    style={{ width: 22, height: h, background: card.colors[j], borderRadius: 3 }}
+                  />
                 ))}
               </div>
               <div
@@ -640,27 +821,36 @@ function LadderSection() {
                   fontSize: 10.5,
                   letterSpacing: "0.12em",
                   textTransform: "uppercase",
-                  color: card.highlight ? "#6C736F" : "#5BE0A5",
+                  color: card.highlight ? "var(--text-dim)" : "var(--accent)",
                   marginBottom: 14,
                 }}
               >
                 {card.num}
               </div>
-              <h3 style={{ fontSize: 25, letterSpacing: "-0.03em", fontWeight: 500, margin: "0 0 10px" }}>
+              <h3
+                style={{
+                  fontSize: T.h3,
+                  letterSpacing: "-0.03em",
+                  fontWeight: 500,
+                  margin: "0 0 10px",
+                }}
+              >
                 {card.title}
               </h3>
-              <p style={{ fontSize: 15.5, lineHeight: 1.6, color: "#8D9490", margin: "0 0 22px" }}>{card.desc}</p>
+              <p style={{ fontSize: 15.5, lineHeight: 1.6, color: "var(--text-dim)", margin: "0 0 20px" }}>
+                {card.desc}
+              </p>
               {card.tags && (
-                <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginBottom: 22 }}>
+                <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginBottom: 20 }}>
                   {card.tags.map((tag) => (
                     <span
                       key={tag}
                       style={{
                         fontSize: 12.5,
-                        border: "1px solid #1E3A2D",
+                        border: "1px solid var(--accent-line)",
                         padding: "5px 10px",
                         borderRadius: 100,
-                        color: "#A9AFAB",
+                        color: "var(--text-body)",
                       }}
                     >
                       {tag}
@@ -669,38 +859,47 @@ function LadderSection() {
                 </div>
               )}
               {card.highlight && (
-                <div style={{ fontSize: 14.5, color: "#6C736F", lineHeight: 1.55, marginBottom: 22 }}>
+                <div style={{ fontSize: 14.5, color: "var(--text-dim)", lineHeight: 1.55, marginBottom: 20 }}>
                   Curious what one would do in your firm?{" "}
-                  <a href="#hero-form">Tell us the process</a> and we'll scope it.
+                  <TrackLink
+                    event="LP - CTA Click"
+                    params={{ cta: "tell_us_the_process", location: "ladder" }}
+                    href="#start-form"
+                    style={{ display: "inline-block", padding: "4px 0" }}
+                  >
+                    Tell us the process
+                  </TrackLink>{" "}
+                  and we&rsquo;ll scope it.
                 </div>
               )}
               <div
                 style={{
                   marginTop: "auto",
                   paddingTop: 20,
-                  borderTop: card.highlight ? "1px solid #17251F" : "1px solid #17191B",
+                  borderTop: card.highlight ? "1px solid var(--line-green)" : "1px solid var(--line-2)",
                   display: "flex",
                   justifyContent: "space-between",
+                  gap: 12,
+                  flexWrap: "wrap",
                   fontFamily: MONO,
                   fontSize: 11.5,
-                  color: "#6C736F",
+                  color: "var(--text-dim)",
                 }}
               >
                 <span>{card.meta1}</span>
-                <span style={{ color: "#A9AFAB" }}>{card.meta2}</span>
+                <span style={{ color: "var(--text-body)" }}>{card.meta2}</span>
               </div>
             </div>
           ))}
         </div>
 
-        {/* C.O.R.E. method */}
         <div
           style={{
-            marginTop: 56,
-            border: "1px solid #1A1E21",
+            marginTop: "clamp(36px, 4vw, 56px)",
+            border: "1px solid var(--line-3)",
             borderRadius: 18,
-            background: "#0B0D0E",
-            padding: "36px 40px",
+            background: "var(--bg-card)",
+            padding: "clamp(26px, 3vw, 36px) clamp(22px, 3vw, 40px)",
           }}
         >
           <div
@@ -710,32 +909,40 @@ function LadderSection() {
               alignItems: "baseline",
               gap: 20,
               flexWrap: "wrap",
-              marginBottom: 30,
+              marginBottom: 26,
             }}
           >
-            <div style={{ fontFamily: MONO, fontSize: 10.5, letterSpacing: "0.14em", textTransform: "uppercase", color: "#5F6764" }}>
+            <h3
+              style={{
+                fontFamily: MONO,
+                fontSize: 10.5,
+                fontWeight: 400,
+                letterSpacing: "0.14em",
+                textTransform: "uppercase",
+                color: "var(--text-faint)",
+              }}
+            >
               Delivery · the C.O.R.E. method
+            </h3>
+            <div style={{ fontFamily: MONO, fontSize: 11.5, color: "var(--accent)" }}>
+              your total lift: ~4 hours
             </div>
-            <div style={{ fontFamily: MONO, fontSize: 11.5, color: "#5BE0A5" }}>your total lift: ~4 hours</div>
           </div>
-          <div style={{ display: "flex", gap: 4, marginBottom: 20 }}>
+          <div aria-hidden="true" style={{ display: "flex", gap: 4, marginBottom: 20 }}>
             <div style={{ flex: 3, height: 8, background: "#5BE0A5", borderRadius: "100px 0 0 100px" }} />
             <div style={{ flex: 7, height: 8, background: "#3A8C68" }} />
             <div style={{ flex: 4, height: 8, background: "#23533F" }} />
             <div style={{ flex: 4, height: 8, background: "#17251F", borderRadius: "0 100px 100px 0" }} />
           </div>
-          <div style={{ display: "flex", gap: 4, flexWrap: "wrap" }}>
-            {[
-              { title: "Capture", weeks: "weeks 1–3" },
-              { title: "Orchestrate", weeks: "weeks 4–10" },
-              { title: "Run", weeks: "weeks 11–14" },
-              { title: "Expand", weeks: "day 100+" },
-            ].map((phase, i) => (
-              <div key={i} style={{ flex: "1 1 150px", minWidth: 0 }}>
+          <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
+            {phases.map((phase, i) => (
+              <div key={i} style={{ flex: "1 1 140px", minWidth: 0 }}>
                 <div style={{ fontSize: 17, fontWeight: 500, letterSpacing: "-0.02em", marginBottom: 6 }}>
                   {phase.title}
                 </div>
-                <div style={{ fontFamily: MONO, fontSize: 11.5, color: "#6C736F" }}>{phase.weeks}</div>
+                <div style={{ fontFamily: MONO, fontSize: 11.5, color: "var(--text-dim)" }}>
+                  {phase.weeks}
+                </div>
               </div>
             ))}
           </div>
@@ -752,75 +959,159 @@ function ProofSection() {
     { stat: "2.5 wks", bar: "52%", desc: "CRM migration plus a custom integration", source: "Manely Firm · 2025" },
     { stat: "36.2%", bar: "36%", desc: "Sourcing time saved by one agent", source: "Qualigence · 2025" },
   ];
+  const berry = [
+    { stat: "+326%", desc: "Lead growth, with Google Ads spend down" },
+    { stat: "3 wks", desc: "To ship what a prior team missed in six months" },
+    { stat: "1 FTE", desc: "Of manual lookup work automated. Same employee, new job" },
+  ];
   return (
-    <section id="proof" style={{ borderTop: "1px solid #14171A" }}>
-      <div style={{ maxWidth: 1320, margin: "0 auto", padding: "128px 48px" }}>
-        <div style={{ display: "flex", gap: 48, flexWrap: "wrap", alignItems: "flex-end", marginBottom: 56 }}>
-          <div style={{ flex: "1 1 460px", minWidth: 0 }}>
-            <div style={{ fontSize: 15, color: "#6C736F", marginBottom: 26 }}>Proof, with sources</div>
-            <h2 style={{ fontSize: 52, lineHeight: 1.02, letterSpacing: "-0.04em", fontWeight: 500, margin: 0, maxWidth: "18ch" }}>
+    <section id="proof" style={{ borderTop: "1px solid var(--line)" }}>
+      <div className="wrap sec-y">
+        <div className="sec-head">
+          <div style={{ minWidth: 0 }}>
+            <p style={{ fontSize: 15, color: "var(--text-dim)", marginBottom: 22 }}>
+              Proof, with sources
+            </p>
+            <h2
+              style={{
+                fontSize: T.h2,
+                lineHeight: 1.04,
+                letterSpacing: "-0.04em",
+                fontWeight: 500,
+                margin: 0,
+                maxWidth: "18ch",
+              }}
+            >
               Four numbers, four firms.
             </h2>
           </div>
         </div>
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))", gap: 16 }}>
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns: "repeat(auto-fit, minmax(min(240px, 100%), 1fr))",
+            gap: 16,
+          }}
+        >
           {stats.map((s, i) => (
-            <div key={i} style={{ minWidth: 0, border: "1px solid #1A1E21", borderRadius: 18, background: "#0B0D0E", padding: 30 }}>
-              <div style={{ fontSize: 52, lineHeight: 1, letterSpacing: "-0.045em", fontWeight: 500, color: "#5BE0A5" }}>
+            <div
+              key={i}
+              style={{
+                minWidth: 0,
+                border: "1px solid var(--line-3)",
+                borderRadius: 18,
+                background: "var(--bg-card)",
+                padding: "var(--card-pad)",
+              }}
+            >
+              <div
+                style={{
+                  fontSize: T.statBig,
+                  lineHeight: 1,
+                  letterSpacing: "-0.045em",
+                  fontWeight: 500,
+                  color: "var(--accent)",
+                }}
+              >
                 {s.stat}
               </div>
-              <div style={{ height: 3, background: "#16191A", borderRadius: 100, margin: "22px 0" }}>
-                <div style={{ height: 3, width: s.bar, background: "#5BE0A5", borderRadius: 100 }} />
+              <div
+                aria-hidden="true"
+                style={{ height: 3, background: "#16191A", borderRadius: 100, margin: "20px 0" }}
+              >
+                <div style={{ height: 3, width: s.bar, background: "var(--accent)", borderRadius: 100 }} />
               </div>
-              <div style={{ fontSize: 15.5, lineHeight: 1.5, color: "#A9AFAB" }}>{s.desc}</div>
-              <div style={{ fontFamily: MONO, fontSize: 10.5, color: "#5F6764", marginTop: 16, lineHeight: 1.7 }}>
+              <div style={{ fontSize: 15.5, lineHeight: 1.5, color: "var(--text-body)" }}>{s.desc}</div>
+              <div
+                style={{
+                  fontFamily: MONO,
+                  fontSize: 10.5,
+                  color: "var(--text-faint)",
+                  marginTop: 16,
+                  lineHeight: 1.7,
+                }}
+              >
                 {s.source}
               </div>
             </div>
           ))}
         </div>
 
-        {/* Berry Law testimonial */}
-        <div
+        <figure
           style={{
-            marginTop: 16,
-            border: "1px solid #1A1E21",
+            margin: "16px 0 0",
+            border: "1px solid var(--line-3)",
             borderRadius: 18,
             background: "linear-gradient(180deg, #0E1113, #0A0C0D)",
-            padding: 44,
+            padding: "clamp(26px, 3.4vw, 44px)",
             display: "flex",
-            gap: 44,
+            gap: "clamp(28px, 3.6vw, 44px)",
             flexWrap: "wrap",
           }}
         >
           <div style={{ flex: "1 1 440px", minWidth: 0 }}>
-            <div style={{ display: "flex", alignItems: "center", gap: 14, marginBottom: 26 }}>
-              <Image src="/logos/berry-law.png" alt="Berry Law" width={109} height={26} style={{ opacity: 0.75 }} />
-              <span style={{ fontFamily: MONO, fontSize: 10.5, color: "#5F6764", letterSpacing: "0.1em" }}>
-                LEGAL SERVICES · 32,000 ACTIVE CLIENTS
-              </span>
-            </div>
-            <p style={{ fontSize: 28, lineHeight: 1.36, letterSpacing: "-0.028em", margin: "0 0 22px", textWrap: "pretty" as const }}>
-              &ldquo;Revenue Institute was able to align sales, marketing, and IT. They moved us to a privacy-compliant AI system that
-              grew our leads by 326% in 4 months.&rdquo;
-            </p>
-            <div style={{ fontFamily: MONO, fontSize: 10.5, color: "#6C736F", letterSpacing: "0.1em" }}>
-              Joe DeMike, Chief Marketing Officer at Berry Law
-            </div>
             <div
               style={{
                 display: "flex",
                 alignItems: "center",
                 gap: 14,
-                marginTop: 26,
-                paddingTop: 22,
-                borderTop: "1px solid #17191B",
+                marginBottom: 24,
                 flexWrap: "wrap",
               }}
             >
-              <div style={{ fontSize: 15, color: "#8D9490", lineHeight: 1.5, maxWidth: "52ch" }}>
-                Led by Stephen Lowisz and a team of Operators at Revenue Institute. No PowerPoints included — just results.
-              </div>
+              <Image
+                src="/logos/berry-law.png"
+                alt="Berry Law"
+                width={109}
+                height={26}
+                style={{ opacity: 0.85, height: "auto" }}
+              />
+              <span
+                style={{
+                  fontFamily: MONO,
+                  fontSize: 10.5,
+                  color: "var(--text-faint)",
+                  letterSpacing: "0.1em",
+                }}
+              >
+                LEGAL SERVICES · 32,000 ACTIVE CLIENTS
+              </span>
+            </div>
+            <blockquote
+              style={{
+                fontSize: T.quote,
+                lineHeight: 1.36,
+                letterSpacing: "-0.028em",
+                margin: "0 0 20px",
+                textWrap: "pretty" as const,
+              }}
+            >
+              &ldquo;Revenue Institute was able to align sales, marketing, and IT. They moved us to
+              a privacy-compliant AI system that grew our leads by 326% in 4 months.&rdquo;
+            </blockquote>
+            <figcaption
+              style={{
+                fontFamily: MONO,
+                fontSize: 10.5,
+                color: "var(--text-dim)",
+                letterSpacing: "0.1em",
+              }}
+            >
+              Joe DeMike, Chief Marketing Officer at Berry Law
+            </figcaption>
+            <div
+              style={{
+                marginTop: 24,
+                paddingTop: 20,
+                borderTop: "1px solid var(--line-2)",
+                fontSize: 15,
+                color: "var(--text-muted)",
+                lineHeight: 1.5,
+                maxWidth: "52ch",
+              }}
+            >
+              Led by Stephen Lowisz and a team of Operators at Revenue Institute. No PowerPoints
+              included, just results.
             </div>
           </div>
           <div
@@ -830,29 +1121,32 @@ function ProofSection() {
               display: "grid",
               gap: 0,
               alignContent: "start",
-              borderTop: "1px solid #1E2124",
+              borderTop: "1px solid var(--line-4)",
             }}
           >
-            {[
-              { stat: "+326%", desc: "Lead growth, with Google Ads spend down" },
-              { stat: "3 wks", desc: "To ship what a prior team missed in six months" },
-              { stat: "1 FTE", desc: "Of manual lookup work automated — same employee, new job" },
-            ].map((item, i) => (
+            {berry.map((item, i) => (
               <div
                 key={i}
-                style={{
-                  padding: "18px 0",
-                  borderBottom: i < 2 ? "1px solid #17191B" : undefined,
-                }}
+                style={{ padding: "18px 0", borderBottom: i < 2 ? "1px solid var(--line-2)" : undefined }}
               >
-                <div style={{ fontSize: 34, lineHeight: 1, letterSpacing: "-0.04em", fontWeight: 500, color: "#5BE0A5" }}>
+                <div
+                  style={{
+                    fontSize: T.statMid,
+                    lineHeight: 1,
+                    letterSpacing: "-0.04em",
+                    fontWeight: 500,
+                    color: "var(--accent)",
+                  }}
+                >
                   {item.stat}
                 </div>
-                <div style={{ fontSize: 14.5, color: "#8D9490", marginTop: 8 }}>{item.desc}</div>
+                <div style={{ fontSize: 14.5, color: "var(--text-muted)", marginTop: 8, lineHeight: 1.5 }}>
+                  {item.desc}
+                </div>
               </div>
             ))}
           </div>
-        </div>
+        </figure>
       </div>
     </section>
   );
@@ -860,14 +1154,38 @@ function ProofSection() {
 
 function ObjectionsSection() {
   const items = [
-    { quote: "&ldquo;AI is hype. It won't work in a firm like mine.&rdquo;", answer: "Then judge it on a number, not a narrative.", stat: "+326%", statLabel: "leads, spend down" },
-    { quote: "&ldquo;We don't have bandwidth for an implementation.&rdquo;", answer: "Four hours from your team, all in week one.", stat: "2.5 wks", statLabel: "start to finish" },
-    { quote: "&ldquo;We hired a consultant once and got slides.&rdquo;", answer: "We stay on the system after go-live.", stat: "136 hrs", statLabel: "back per week" },
+    {
+      quote: "“AI is hype. It won’t work in a firm like mine.”",
+      answer: "Then judge it on a number, not a narrative.",
+      stat: "+326%",
+      statLabel: "leads, spend down",
+    },
+    {
+      quote: "“We don’t have bandwidth for an implementation.”",
+      answer: "Four hours from your team, all in week one.",
+      stat: "2.5 wks",
+      statLabel: "start to finish",
+    },
+    {
+      quote: "“We hired a consultant once and got slides.”",
+      answer: "We stay on the system after go-live.",
+      stat: "136 hrs",
+      statLabel: "back per week",
+    },
   ];
   return (
-    <section style={{ borderTop: "1px solid #14171A" }}>
-      <div style={{ maxWidth: 1320, margin: "0 auto", padding: "128px 48px" }}>
-        <div style={{ fontSize: 15, color: "#6C736F", marginBottom: 26 }}>Three fair objections</div>
+    <section id="objections" style={{ borderTop: "1px solid var(--line)" }}>
+      <div className="wrap sec-y">
+        <h2
+          style={{
+            fontSize: 15,
+            fontWeight: 400,
+            color: "var(--text-dim)",
+            marginBottom: 22,
+          }}
+        >
+          Three fair objections
+        </h2>
         <div style={{ display: "flex", gap: 16, flexWrap: "wrap" }}>
           {items.map((item, i) => (
             <div
@@ -875,19 +1193,48 @@ function ObjectionsSection() {
               style={{
                 flex: "1 1 320px",
                 minWidth: 0,
-                border: "1px solid #1A1E21",
+                border: "1px solid var(--line-3)",
                 borderRadius: 18,
-                background: "#0B0D0E",
-                padding: 34,
+                background: "var(--bg-card)",
+                padding: "var(--card-pad)",
               }}
             >
-              <h3 style={{ fontSize: 26, lineHeight: 1.16, letterSpacing: "-0.03em", fontWeight: 500, margin: "0 0 16px" }} dangerouslySetInnerHTML={{ __html: item.quote }} />
-              <p style={{ fontSize: 16, lineHeight: 1.6, color: "#8D9490", margin: "0 0 26px" }}>{item.answer}</p>
-              <div style={{ borderTop: "1px solid #17191B", paddingTop: 20, display: "flex", alignItems: "baseline", gap: 12 }}>
-                <span style={{ fontSize: 30, lineHeight: 1, letterSpacing: "-0.035em", fontWeight: 500, color: "#5BE0A5" }}>
+              <h3
+                style={{
+                  fontSize: T.h3lg,
+                  lineHeight: 1.18,
+                  letterSpacing: "-0.03em",
+                  fontWeight: 500,
+                  margin: "0 0 14px",
+                }}
+              >
+                {item.quote}
+              </h3>
+              <p style={{ fontSize: 16, lineHeight: 1.6, color: "var(--text-muted)", margin: "0 0 24px" }}>
+                {item.answer}
+              </p>
+              <div
+                style={{
+                  borderTop: "1px solid var(--line-2)",
+                  paddingTop: 20,
+                  display: "flex",
+                  alignItems: "baseline",
+                  gap: 12,
+                  flexWrap: "wrap",
+                }}
+              >
+                <span
+                  style={{
+                    fontSize: "clamp(1.5rem, 2.8vw, 1.875rem)",
+                    lineHeight: 1,
+                    letterSpacing: "-0.035em",
+                    fontWeight: 500,
+                    color: "var(--accent)",
+                  }}
+                >
                   {item.stat}
                 </span>
-                <span style={{ fontSize: 14, color: "#6C736F" }}>{item.statLabel}</span>
+                <span style={{ fontSize: 14, color: "var(--text-dim)" }}>{item.statLabel}</span>
               </div>
             </div>
           ))}
@@ -898,148 +1245,254 @@ function ObjectionsSection() {
 }
 
 function CompareSection() {
+  const cols = ["Revenue Institute", "Big consulting", "Internal ops", "AI tool alone"];
   return (
-    <section id="compare" style={{ background: "#F2F3F0", color: "#08090A" }}>
-      <div style={{ maxWidth: 1320, margin: "0 auto", padding: "128px 48px" }}>
-        <div style={{ display: "flex", gap: 48, flexWrap: "wrap", alignItems: "flex-end", marginBottom: 48 }}>
-          <div style={{ flex: "1 1 460px", minWidth: 0 }}>
-            <div style={{ fontSize: 15, color: "#7C837E", marginBottom: 26 }}>The honest comparison</div>
-            <h2 style={{ fontSize: 52, lineHeight: 1.02, letterSpacing: "-0.04em", fontWeight: 500, margin: 0, maxWidth: "20ch" }}>
+    <section id="compare" style={{ background: "var(--l-bg)", color: "var(--l-text)" }}>
+      <div className="wrap sec-y">
+        <div className="sec-head has-aside">
+          <div style={{ minWidth: 0 }}>
+            <p style={{ fontSize: 15, color: "var(--l-muted)", marginBottom: 22 }}>
+              The honest comparison
+            </p>
+            <h2
+              style={{
+                fontSize: T.h2,
+                lineHeight: 1.04,
+                letterSpacing: "-0.04em",
+                fontWeight: 500,
+                margin: 0,
+                maxWidth: "20ch",
+              }}
+            >
               Us, consulting, your ops team, or a tool
             </h2>
           </div>
-          <p style={{ flex: "1 1 320px", minWidth: 0, fontSize: 18, lineHeight: 1.6, color: "#55605A", margin: 0, maxWidth: "40ch" }}>
+          <p
+            style={{
+              minWidth: 0,
+              fontSize: T.lead,
+              lineHeight: 1.6,
+              color: "var(--l-muted)",
+              margin: 0,
+              maxWidth: "40ch",
+            }}
+          >
             Including where the other three are the right call.
           </p>
         </div>
-        <div style={{ border: "1px solid #D9DBD5", borderRadius: 18, overflow: "hidden", background: "#FFFFFF" }}>
-          <div
-            style={{
-              display: "grid",
-              gridTemplateColumns: "minmax(0, 1.8fr) minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1fr)",
-              borderBottom: "1px solid #E4E6E0",
-            }}
-          >
-            <div style={{ padding: "18px 24px", fontFamily: MONO, fontSize: 10.5, letterSpacing: "0.12em", textTransform: "uppercase", color: "#7C837E" }}>
+
+        {/* Below 900px each row collapses into a labelled card. The fixed
+            5-column grid crushed data cells to 50px and overlapped headers. */}
+        <div
+          style={{
+            border: "1px solid var(--l-line)",
+            borderRadius: 18,
+            overflow: "hidden",
+            background: "var(--l-surface)",
+          }}
+        >
+          <div className="cmp-grid cmp-head" style={{ borderBottom: "1px solid #E4E6E0" }}>
+            <div
+              style={{
+                padding: "18px 24px",
+                fontFamily: MONO,
+                fontSize: 10.5,
+                letterSpacing: "0.12em",
+                textTransform: "uppercase",
+                color: "var(--l-muted)",
+              }}
+            >
               What you need
             </div>
-            <div style={{ padding: "18px 16px", fontSize: 14, fontWeight: 600, background: "#08090A", color: "#F3F4F1" }}>
+            <div
+              style={{
+                padding: "18px 16px",
+                fontSize: 14,
+                fontWeight: 600,
+                background: "var(--l-text)",
+                color: "#F3F4F1",
+              }}
+            >
               Revenue Institute
             </div>
-            <div style={{ padding: "18px 16px", fontSize: 14, color: "#55605A" }}>Big consulting</div>
-            <div style={{ padding: "18px 16px", fontSize: 14, color: "#55605A" }}>Internal ops</div>
-            <div style={{ padding: "18px 16px", fontSize: 14, color: "#55605A" }}>AI tool alone</div>
+            {cols.slice(1).map((c) => (
+              <div key={c} style={{ padding: "18px 16px", fontSize: 14, color: "var(--l-muted)" }}>
+                {c}
+              </div>
+            ))}
           </div>
+
           {compareRows.map((row, i) => (
             <div
               key={i}
-              style={{
-                display: "grid",
-                gridTemplateColumns: "minmax(0, 1.8fr) minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1fr)",
-                borderBottom: "1px solid #EDEEEA",
-                alignItems: "center",
-              }}
+              className="cmp-grid cmp-row"
+              style={{ borderBottom: "1px solid var(--l-line-2)" }}
             >
-              <div style={{ padding: "19px 24px", fontSize: 15.5 }}>{row.label}</div>
-              <div style={{ padding: "19px 16px", fontSize: 14.5, color: "#1D5B42", background: "#F4FAF6", fontWeight: 500 }}>{row.ri}</div>
-              <div style={{ padding: "19px 16px", fontSize: 14.5, color: "#9DA39F" }}>{row.consult}</div>
-              <div style={{ padding: "19px 16px", fontSize: 14.5, color: "#9DA39F" }}>{row.internal}</div>
-              <div style={{ padding: "19px 16px", fontSize: 14.5, color: "#9DA39F" }}>{row.tool}</div>
+              <div className="cmp-label" style={{ padding: "19px 24px", fontSize: 15.5 }}>
+                {row.label}
+              </div>
+              <div
+                className="cmp-cell cmp-cell-ri"
+                data-col={cols[0]}
+                style={{
+                  padding: "19px 16px",
+                  fontSize: 14.5,
+                  color: "var(--l-ri)",
+                  background: "var(--l-ri-bg)",
+                  fontWeight: 500,
+                }}
+              >
+                <span>{row.ri}</span>
+              </div>
+              {[row.consult, row.internal, row.tool].map((v, j) => (
+                <div
+                  key={j}
+                  className="cmp-cell"
+                  data-col={cols[j + 1]}
+                  style={{ padding: "19px 16px", fontSize: 14.5, color: "var(--l-faint)" }}
+                >
+                  <span>{v}</span>
+                </div>
+              ))}
             </div>
           ))}
         </div>
-        <div style={{ fontFamily: MONO, fontSize: 11.5, color: "#7C837E", marginTop: 18, lineHeight: 1.8, maxWidth: "76ch" }}>
-          Where the others win: Big Four for board-level M&A diligence; your internal team once the system is stable and
-          documented; a point tool when one narrow task is the entire problem.
-        </div>
+
+        <p
+          style={{
+            fontFamily: MONO,
+            fontSize: 11.5,
+            color: "var(--l-muted)",
+            marginTop: 18,
+            lineHeight: 1.8,
+            maxWidth: "76ch",
+          }}
+        >
+          Where the others win: Big Four for board-level M&amp;A diligence; your internal team once
+          the system is stable and documented; a point tool when one narrow task is the entire
+          problem.
+        </p>
       </div>
     </section>
   );
 }
 
 function StartSection({ ad }: { ad: (typeof adGroups)[string] }) {
+  const promises = [
+    "One business day, from a person who has built these",
+    "A rough range before you spend a meeting on it",
+    "If we're not the fit, we say so and point elsewhere",
+  ];
   return (
-    <section id="start" style={{ position: "relative", overflow: "hidden", borderTop: "1px solid #14171A" }}>
+    <section id="start" style={{ position: "relative", overflow: "hidden", borderTop: "1px solid var(--line)" }}>
       <div
+        aria-hidden="true"
         style={{
           position: "absolute",
           inset: 0,
-          background: "radial-gradient(ellipse 1000px 460px at 50% 118%, rgba(91,224,165,0.11), rgba(8,9,10,0) 70%)",
+          background:
+            "radial-gradient(ellipse 1000px 460px at 50% 118%, rgba(91,224,165,0.11), rgba(8,9,10,0) 70%)",
         }}
       />
-      <div
-        style={{
-          position: "relative",
-          maxWidth: 1320,
-          margin: "0 auto",
-          padding: "128px 48px",
-          display: "flex",
-          gap: 56,
-          flexWrap: "wrap",
-          alignItems: "flex-start",
-        }}
-      >
-        <div style={{ flex: "1 1 400px", minWidth: 0 }}>
-          <div style={{ fontSize: 15, color: "#6C736F", marginBottom: 26 }}>Start here</div>
-          <h2
-            style={{
-              fontSize: 52,
-              lineHeight: 1.0,
-              letterSpacing: "-0.042em",
-              fontWeight: 500,
-              margin: "0 0 22px",
-              maxWidth: "16ch",
-              textWrap: "pretty" as const,
-            }}
-          >
-            Grow the firm, not the payroll.
-          </h2>
-          <p style={{ fontSize: 19, lineHeight: 1.55, color: "#A9AFAB", margin: "0 0 36px", maxWidth: "36ch" }}>
-            Send us the process that's costing you the most hours. We'll tell you straight whether it's worth automating.
-          </p>
-          <div style={{ display: "grid", gap: 0, borderTop: "1px solid #1E2124" }}>
-            {[
-              "One business day, from a person who has built these",
-              "A rough range before you spend a meeting on it",
-              "If we're not the fit, we say so and point elsewhere",
-            ].map((item, i) => (
-              <div
-                key={i}
-                style={{
-                  fontSize: 16,
-                  color: "#A9AFAB",
-                  padding: "15px 0",
-                  borderBottom: i < 2 ? "1px solid #17191B" : undefined,
-                }}
+      <div className="wrap sec-y" style={{ position: "relative" }}>
+        <div className="split-grid">
+          <div style={{ minWidth: 0 }}>
+            <p style={{ fontSize: 15, color: "var(--text-dim)", marginBottom: 22 }}>Start here</p>
+            <h2
+              style={{
+                fontSize: T.h2,
+                lineHeight: 1.03,
+                letterSpacing: "-0.042em",
+                fontWeight: 500,
+                margin: "0 0 20px",
+                maxWidth: "16ch",
+                textWrap: "balance" as const,
+              }}
+            >
+              Grow the firm, not the payroll.
+            </h2>
+            <p
+              style={{
+                fontSize: T.subhead,
+                lineHeight: 1.55,
+                color: "var(--text-body)",
+                margin: "0 0 30px",
+                maxWidth: "36ch",
+              }}
+            >
+              Send us the process that&rsquo;s costing you the most hours. We&rsquo;ll tell you
+              straight whether it&rsquo;s worth automating.
+            </p>
+            <ul style={{ display: "grid", gap: 0, borderTop: "1px solid var(--line-4)", listStyle: "none" }}>
+              {promises.map((item, i) => (
+                <li
+                  key={i}
+                  style={{
+                    fontSize: 16,
+                    color: "var(--text-body)",
+                    padding: "15px 0",
+                    borderBottom: i < 2 ? "1px solid var(--line-2)" : undefined,
+                  }}
+                >
+                  {item}
+                </li>
+              ))}
+            </ul>
+            <div style={{ marginTop: 26, fontSize: 16, color: "var(--text-muted)" }}>
+              Rather talk first?{" "}
+              <TrackLink
+                event="LP - CTA Click"
+                params={{ cta: "email", location: "start" }}
+                href="mailto:sales@revenueinstitute.com"
+                className="tap"
               >
-                {item}
+                sales@revenueinstitute.com
+              </TrackLink>
+            </div>
+            <div
+              style={{
+                marginTop: 22,
+                border: "1px solid var(--line-3)",
+                borderRadius: 16,
+                background: "var(--bg-card)",
+                padding: "20px 22px",
+              }}
+            >
+              <div style={{ fontSize: 15, color: "var(--text-dim)", marginBottom: 8 }}>
+                Not ready to talk?
               </div>
-            ))}
-          </div>
-          <div style={{ marginTop: 30, fontSize: 16, color: "#8D9490" }}>
-            Rather talk first?{" "}
-            <a href="mailto:sales@revenueinstitute.com">sales@revenueinstitute.com</a>
-          </div>
-          <div
-            style={{
-              marginTop: 26,
-              border: "1px solid #1A1E21",
-              borderRadius: 16,
-              background: "#0B0D0E",
-              padding: "22px 24px",
-            }}
-          >
-            <div style={{ fontSize: 15, color: "#6C736F", marginBottom: 8 }}>Not ready to talk?</div>
-            <a href="/cost-to-automate" style={{ fontSize: 17, color: "#F3F4F1", lineHeight: 1.4, display: "block" }} className="hover-light">
-              Read what it costs to automate a process →
-            </a>
-            <div style={{ fontSize: 14.5, color: "#6C736F", marginTop: 8, lineHeight: 1.5 }}>
-              Our cost framework, with the ranges and the break-even test. No form.
+              <a
+                href="#ladder"
+                style={{ fontSize: 17, color: "var(--text)", lineHeight: 1.4, display: "block" }}
+                className="hover-light"
+              >
+                See how engagements are scoped and priced →
+              </a>
+              <div style={{ fontSize: 14.5, color: "var(--text-dim)", marginTop: 8, lineHeight: 1.5 }}>
+                The entry tier, the fixed-bid model, and the four-hour delivery commitment. No form.
+              </div>
             </div>
           </div>
-        </div>
 
-        <ContactForm title={ad.formTitle} hint={ad.fieldHint} />
+          <div style={{ minWidth: 0 }}>
+            <ContactForm id="start-form" title={ad.formTitle} hint={ad.fieldHint} />
+            <p
+              style={{
+                fontSize: 12.5,
+                lineHeight: 1.6,
+                color: "var(--text-dim)",
+                marginTop: 14,
+                textAlign: "center",
+              }}
+            >
+              We use your details only to answer this enquiry. No list, no sequence. See our{" "}
+              <a href={PRIVACY_URL} target="_blank" rel="noopener noreferrer">
+                privacy policy
+              </a>
+              .
+            </p>
+          </div>
+        </div>
       </div>
     </section>
   );
@@ -1047,8 +1500,17 @@ function StartSection({ ad }: { ad: (typeof adGroups)[string] }) {
 
 function Footer() {
   return (
-    <footer style={{ borderTop: "1px solid #14171A" }}>
-      <div style={{ maxWidth: 1320, margin: "0 auto", padding: "64px 48px 28px", display: "flex", gap: 48, flexWrap: "wrap" }}>
+    <footer style={{ borderTop: "1px solid var(--line)" }}>
+      <div
+        className="wrap"
+        style={{
+          paddingTop: "clamp(40px, 5vw, 64px)",
+          paddingBottom: 28,
+          display: "flex",
+          gap: "clamp(28px, 4vw, 48px)",
+          flexWrap: "wrap",
+        }}
+      >
         <div style={{ flex: "1 1 280px", minWidth: 0 }}>
           <div style={{ display: "flex", alignItems: "center", marginBottom: 18 }}>
             <Image
@@ -1056,49 +1518,69 @@ function Footer() {
               alt="Revenue Institute"
               width={120}
               height={37}
-              style={{ display: "block" }}
+              style={{ display: "block", height: "auto" }}
             />
           </div>
-          <p style={{ fontSize: 15, lineHeight: 1.6, color: "#5F6764", margin: 0, maxWidth: "28ch" }}>
+          <p style={{ fontSize: 15, lineHeight: 1.6, color: "var(--text-faint)", margin: 0, maxWidth: "28ch" }}>
             We evaluate, build, and operate. Novi, Michigan.
           </p>
         </div>
-        <div style={{ flex: "1 1 300px", minWidth: 0, display: "flex", alignItems: "flex-end" }}>
+        <div
+          style={{
+            flex: "1 1 300px",
+            minWidth: 0,
+            display: "flex",
+            alignItems: "flex-end",
+            justifyContent: "flex-end",
+          }}
+        >
           <TrackLink
             event="LP - CTA Click"
             params={{ cta: "talk_to_us", location: "footer" }}
-            href="#hero-form"
+            href="#start-form"
+            className="tap hover-white"
             style={{
               fontSize: 16,
               fontWeight: 500,
-              color: "#08090A",
-              background: "#5BE0A5",
-              padding: "15px 26px",
+              color: "var(--bg)",
+              background: "var(--accent)",
+              padding: "0 26px",
               borderRadius: 100,
             }}
-            className="hover-white"
           >
             Talk to us about one process →
           </TrackLink>
         </div>
       </div>
       <div
+        className="wrap"
         style={{
-          maxWidth: 1320,
-          margin: "0 auto",
-          padding: "22px 48px 48px",
-          borderTop: "1px solid #14171A",
+          paddingTop: 22,
+          paddingBottom: 48,
+          borderTop: "1px solid var(--line)",
           display: "flex",
           justifyContent: "space-between",
-          gap: 20,
+          alignItems: "center",
+          gap: 16,
           flexWrap: "wrap",
           fontFamily: MONO,
           fontSize: 11,
-          color: "#5F6764",
+          color: "var(--text-faint)",
         }}
       >
         <span>© 2026 Revenue Institute</span>
-        <span>Updated August 2026 · reviewed by Stephen Lowisz</span>
+        <span style={{ display: "flex", gap: 20, flexWrap: "wrap", alignItems: "center" }}>
+          <a
+            href={PRIVACY_URL}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="tap hover-light"
+            style={{ color: "var(--text-faint)" }}
+          >
+            Privacy policy
+          </a>
+          <span>Updated August 2026 · reviewed by Stephen Lowisz</span>
+        </span>
       </div>
     </footer>
   );

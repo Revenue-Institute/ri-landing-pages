@@ -1,7 +1,7 @@
 "use client";
 
 import { track } from "./gtm";
-import type { CSSProperties, MouseEvent } from "react";
+import type { CSSProperties, MouseEvent, ReactNode } from "react";
 
 export function TrackLink({
   event,
@@ -11,21 +11,27 @@ export function TrackLink({
   className,
   href,
   onClick,
+  "aria-label": ariaLabel,
 }: {
   event: string;
   params?: Record<string, unknown>;
-  children: React.ReactNode;
+  children: ReactNode;
   style?: CSSProperties;
   className?: string;
   href: string;
   onClick?: (e: MouseEvent<HTMLAnchorElement>) => void;
+  "aria-label"?: string;
 }) {
   return (
     <a
       href={href}
       style={style}
       className={className}
-      onClick={() => track(event, params)}
+      aria-label={ariaLabel}
+      onClick={(e) => {
+        track(event, params);
+        onClick?.(e);
+      }}
     >
       {children}
     </a>

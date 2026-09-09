@@ -73,17 +73,17 @@ const rawVerticals: RawVertical[] = [
         { step: "Attorney reconstructs the day from memory", value: "28 min" },
         { step: "Re-keys entries into practice management", value: "19 min" },
         { step: "Billing chases the missing narratives", value: "2 days" },
-        { step: "Hours that never make it onto a bill", value: "6–14%" },
+        { step: "Hours that never make it onto a bill", value: "6-14%" },
       ],
       after: [
         { step: "Draft entries assembled from calendar, email, documents", value: "automatic" },
         { step: "Attorney reviews and approves the day", value: "4 min" },
         { step: "Coded and written to practice management", value: "same day" },
-        { step: "Billing chases nobody", value: "—" },
+        { step: "Billing chases nobody", value: "none" },
       ],
     },
-    stat: "10–25%",
-    statLabel: "of billable hours typically recovered — a stated assumption, not a guarantee",
+    stat: "10-25%",
+    statLabel: "of billable hours typically recovered. A stated assumption, not a guarantee",
     cta: "See the law firm playbook",
   },
   {
@@ -107,13 +107,13 @@ const rawVerticals: RawVertical[] = [
         { step: "Partner rebuilds a scope from three past decks", value: "3.5 hrs" },
         { step: "Rates and staffing reconciled by hand in a sheet", value: "1.5 hrs" },
         { step: "Proposal sits waiting on internal review", value: "4 days" },
-        { step: "Consultant hours never coded to a phase", value: "8–15%" },
+        { step: "Consultant hours never coded to a phase", value: "8-15%" },
       ],
       after: [
         { step: "Draft scope assembled from your own past engagements", value: "automatic" },
         { step: "Rates, staffing, and margin pre-filled from the model", value: "10 min" },
         { step: "Review routed and cleared in one pass", value: "same day" },
-        { step: "Phase-level time coded on capture", value: "—" },
+        { step: "Phase-level time coded on capture", value: "none" },
       ],
     },
     stat: "136 hrs",
@@ -125,7 +125,7 @@ const rawVerticals: RawVertical[] = [
     buyer: "For the COO / chief compliance officer",
     headline: "Compliance-aware systems that return advisors to clients.",
     bullets: [
-      "Digital, compliant onboarding — intake from weeks to days",
+      "Digital, compliant onboarding: intake from weeks to days",
       "An advisor CRM built around relationships, not a sales pipeline",
       "AI meeting briefs with account and portfolio context",
       "AI-assisted compliance docs, approved by humans",
@@ -147,7 +147,7 @@ const rawVerticals: RawVertical[] = [
         { step: "Digital intake, validated as the client fills it", value: "automatic" },
         { step: "Written once, synced to CRM, custodian, and portfolio", value: "0 min" },
         { step: "Compliance packet assembled for human approval", value: "same day" },
-        { step: "Onboarding start to funded", value: "2–3 days" },
+        { step: "Onboarding start to funded", value: "2-3 days" },
       ],
     },
     stat: "Weeks → days",
@@ -159,7 +159,7 @@ const rawVerticals: RawVertical[] = [
     buyer: "For the operating partner / portco COO",
     headline: "Investor-grade systems that hit the 100-day plan.",
     bullets: [
-      "100-day ops sprint — revenue and reporting infrastructure from day one",
+      "100-day ops sprint: revenue and reporting infrastructure from day one",
       "CRM, pipeline, and attribution at investor-grade standards",
       "Standardized portfolio reporting with live GP dashboards",
       "Cost-reduction automation on the highest-cost processes",
@@ -181,7 +181,7 @@ const rawVerticals: RawVertical[] = [
         { step: "One data model, pulled on a schedule", value: "automatic" },
         { step: "Shared definitions enforced at the source", value: "0 days" },
         { step: "GP dashboard current to yesterday", value: "live" },
-        { step: "Lineage auditable back to the system of record", value: "—" },
+        { step: "Lineage auditable back to the system of record", value: "none" },
       ],
     },
     stat: "Day 100",
@@ -193,7 +193,7 @@ const rawVerticals: RawVertical[] = [
     buyer: "For the COO / VP of operations",
     headline: "Delivery-aware systems that protect billable hours.",
     bullets: [
-      "AI-assisted proposals from your templates — minutes, not days",
+      "AI-assisted proposals from your templates in minutes, not days",
       "24/7 inbound qualification and routing",
       "Live utilization, billing-efficiency, and project-health views",
       "Automated, branded client reports on your schedule",
@@ -214,7 +214,7 @@ const rawVerticals: RawVertical[] = [
       after: [
         { step: "Answered and qualified on arrival, day or night", value: "under 5 min" },
         { step: "Scored against your own close data", value: "automatic" },
-        { step: "Routed to the right owner the first time", value: "—" },
+        { step: "Routed to the right owner the first time", value: "none" },
         { step: "Follow-up sequence runs until someone replies", value: "always" },
       ],
     },
@@ -252,7 +252,7 @@ export const adGroups: Record<string, AdGroup> = {
     eyebrow: "AI process automation for professional services",
     headline: "Consultants hand you a deck. We hand you a running AI system.",
     subhead:
-      "We evaluate which manual workflow costs you most, build the automation on your real data, and run it after go-live — live in 45 days.",
+      "We evaluate which manual workflow costs you most, build the automation on your real data, and run it after go-live. Live in 45 days.",
     points: [
       "Priced against the hire you'd otherwise make, not by the hour",
       "Built inside your own tenancy and access controls",
@@ -265,7 +265,7 @@ export const adGroups: Record<string, AdGroup> = {
     eyebrow: "Intake & legal operations automation",
     headline: "Every inquiry answered and qualified before anyone picks up.",
     subhead:
-      "Matter-aware intake that routes, scores, and follows up on its own — wired into the practice management system you already run.",
+      "Matter-aware intake that routes, scores, and follows up on its own, wired into the practice management system you already run.",
     points: [
       "Answered in under 5 minutes, day or night",
       "Scored against your own close data, routed right the first time",
@@ -278,7 +278,7 @@ export const adGroups: Record<string, AdGroup> = {
     eyebrow: "Billing, time capture & AR automation",
     headline: "The hours your team worked, actually on the bill.",
     subhead:
-      "Time capture assembled from calendar, email, and documents; coded, approved, and written to your system the same day — then AR chases itself.",
+      "Time capture assembled from calendar, email, and documents; coded, approved, and written to your system the same day. Then AR chases itself.",
     points: [
       "10-25% of billable hours typically recovered",
       "Approval in minutes, not a Friday afternoon reconstruction",
@@ -307,7 +307,7 @@ export const faqItems = [
   },
   {
     q: "What's the smallest way to start?",
-    a: "One fixed-scope automation on your highest-cost manual workflow — often live in 10 days, priced against the payroll it avoids.",
+    a: "One fixed-scope automation on your highest-cost manual workflow, often live in 10 days, priced against the payroll it avoids.",
   },
   {
     q: "Are you telling me to replace my people?",
@@ -319,7 +319,7 @@ export const faqItems = [
   },
   {
     q: "Who owns the system afterward?",
-    a: "You do — in your tenancy, in your tools, documented. We run it while that's the cheaper answer, then hand over and stay on call.",
+    a: "You do: in your tenancy, in your tools, documented. We run it while that's the cheaper answer, then hand over and stay on call.",
   },
 ];
 

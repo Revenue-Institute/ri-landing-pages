@@ -1,31 +1,26 @@
 "use client";
 
-import { useState } from "react";
 import { faqItems } from "./data";
 import { track } from "./gtm";
 
 export default function FAQSection() {
   return (
-    <section id="faq" style={{ borderTop: "1px solid #14171A" }}>
+    <section id="faq" style={{ borderTop: "1px solid var(--line)" }}>
       <div
+        className="wrap sec-y"
         style={{
-          maxWidth: 1320,
-          margin: "0 auto",
-          padding: "128px 48px",
           display: "flex",
-          gap: 64,
+          gap: "clamp(28px, 4.4vw, 64px)",
           flexWrap: "wrap",
           alignItems: "flex-start",
         }}
       >
         <div style={{ flex: "1 1 300px", minWidth: 0 }}>
-          <div style={{ fontSize: 15, color: "#6C736F", marginBottom: 26 }}>
-            Answers <span style={{ color: "#5BE0A5" }}>· schema</span>
-          </div>
+          <p style={{ fontSize: 15, color: "var(--text-dim)", marginBottom: 22 }}>Answers</p>
           <h2
             style={{
-              fontSize: 44,
-              lineHeight: 1.02,
+              fontSize: "clamp(1.75rem, 4vw, 2.75rem)",
+              lineHeight: 1.04,
               letterSpacing: "-0.04em",
               fontWeight: 500,
               margin: 0,
@@ -35,24 +30,47 @@ export default function FAQSection() {
             Asked by operators
           </h2>
         </div>
-        <div style={{ flex: "1 1 560px", minWidth: 0, borderTop: "1px solid #1E2124" }}>
+        <div style={{ flex: "1 1 560px", minWidth: 0, borderTop: "1px solid var(--line-4)" }}>
           {faqItems.map((item, i) => (
             <details
               key={i}
-              style={{ borderBottom: "1px solid #1E2124", padding: "26px 0" }}
+              style={{ borderBottom: "1px solid var(--line-4)" }}
               onToggle={(e) => {
                 if (e.currentTarget.open) track("LP - FAQ Open", { question: item.q });
               }}
             >
-              <summary style={{ fontSize: 22, letterSpacing: "-0.024em", fontWeight: 500 }}>
-                {item.q}
+              <summary
+                style={{
+                  fontSize: "clamp(1.125rem, 2vw, 1.375rem)",
+                  letterSpacing: "-0.024em",
+                  fontWeight: 500,
+                  padding: "22px 0",
+                  display: "flex",
+                  alignItems: "baseline",
+                  justifyContent: "space-between",
+                  gap: 20,
+                  minHeight: 44,
+                }}
+              >
+                <span>{item.q}</span>
+                <span
+                  aria-hidden="true"
+                  style={{
+                    fontFamily: "var(--font-mono), monospace",
+                    fontSize: 15,
+                    color: "var(--accent)",
+                    flexShrink: 0,
+                  }}
+                >
+                  +
+                </span>
               </summary>
               <p
                 style={{
                   fontSize: 16.5,
                   lineHeight: 1.7,
-                  color: "#8D9490",
-                  margin: "14px 0 0",
+                  color: "var(--text-muted)",
+                  margin: "0 0 24px",
                   maxWidth: "66ch",
                 }}
               >
