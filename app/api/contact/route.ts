@@ -1,34 +1,12 @@
 import { NextResponse } from "next/server";
 import { Resend } from "resend";
+import { isBlockedEmailDomain } from "@/app/lib/email/blockedDomains";
+import { escapeHtml } from "@/app/lib/email/html";
+import { clientIp, createRateLimiter } from "@/app/lib/email/rateLimit";
 
 const TO_EMAIL = "slowisz@revenueinstitute.com";
 
-const BLOCKED_DOMAINS = [
-  "gmail.com", "googlemail.com", "yahoo.com", "yahoo.co.uk", "yahoo.ca",
-  "hotmail.com", "outlook.com", "live.com", "msn.com", "aol.com",
-  "icloud.com", "me.com", "mac.com", "protonmail.com", "proton.me",
-  "mail.com", "gmx.com", "gmx.net", "yandex.com", "zoho.com",
-  "rocketmail.com", "ymail.com", "earthlink.net", "comcast.net",
-  "att.net", "verizon.net", "sbcglobal.net", "cox.net", "bellsouth.net",
-];
-
-/**
- * Paid traffic attracts form bots. A short in-memory window is enough to blunt
- * naive floods; it resets on deploy and is per-instance, which is the right
- * trade for a single landing page. Move to a shared store if this scales out.
- */
-const RATE_LIMIT = 5;
-const RATE_WINDOW_MS = 10 * 60 * 1000;
-const hits = new Map<string, number[]>();
-
-function rateLimited(ip: string): boolean {
-  const now = Date.now();
-  const recent = (hits.get(ip) ?? []).filter((t) => now - t < RATE_WINDOW_MS);
-  recent.push(now);
-  hits.set(ip, recent);
-  if (hits.size > 5000) hits.clear();
-  return recent.length > RATE_LIMIT;
-}
+const rateLimited = createRateLimiter(5, 10 * 60 * 1000);
 
 export async function POST(request: Request) {
   let name: string;
@@ -54,10 +32,7 @@ export async function POST(request: Request) {
   // A filled honeypot means a bot. Return 200 so it does not learn otherwise.
   if (honeypot) return NextResponse.json({ ok: true });
 
-  const ip =
-    request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ||
-    request.headers.get("x-real-ip") ||
-    "unknown";
+  const ip = clientIp(request);
   if (rateLimited(ip)) {
     return NextResponse.json({ error: "Too many requests" }, { status: 429 });
   }
@@ -72,8 +47,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Enter a valid email address." }, { status: 400 });
   }
 
-  const domain = email.split("@")[1]?.toLowerCase() ?? "";
-  if (BLOCKED_DOMAINS.includes(domain)) {
+  if (isBlockedEmailDomain(email)) {
     return NextResponse.json(
       { error: "Please use your work email address." },
       { status: 400 }
@@ -122,13 +96,4 @@ export async function POST(request: Request) {
     console.error("[contact] Unexpected error:", err);
     return NextResponse.json({ error: "Failed to send email" }, { status: 500 });
   }
-}
-
-function escapeHtml(s: string): string {
-  return s
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;")
-    .replace(/'/g, "&#039;");
 }

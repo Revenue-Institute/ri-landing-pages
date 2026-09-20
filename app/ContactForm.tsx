@@ -3,22 +3,21 @@
 import { useId, useState, type FormEvent } from "react";
 import { track } from "./gtm";
 
-const MONO = "var(--font-mono), monospace";
-
 const inputStyle: React.CSSProperties = {
   fontSize: 16, // below 16px iOS zooms the page on focus
-  padding: "14px 16px",
-  border: "1px solid #26292C",
-  borderRadius: 12,
-  background: "var(--bg-input)",
-  color: "var(--text)",
+  padding: "13px 14px",
+  border: "2px solid var(--ri-ink)",
+  borderRadius: 0,
+  background: "var(--ri-white)",
+  color: "var(--ri-ink)",
   width: "100%",
   minHeight: 52,
 };
 
 const labelStyle: React.CSSProperties = {
+  fontFamily: "var(--ri-font-display)",
   fontSize: 13,
-  color: "var(--text-muted)",
+  color: "var(--ri-muted)",
   marginBottom: 6,
   display: "block",
 };
@@ -36,10 +35,13 @@ export default function ContactForm({
   id,
   title,
   hint,
+  onInk = false,
 }: {
   id?: string;
   title: string;
   hint: string;
+  /** True when rendered on a full-bleed ink band (the closing section). */
+  onInk?: boolean;
 }) {
   const [status, setStatus] = useState<"idle" | "submitting" | "success" | "error">("idle");
   const [emailError, setEmailError] = useState("");
@@ -78,30 +80,35 @@ export default function ContactForm({
     }
   }
 
+  const cardBg = onInk ? "var(--ri-dark-panel)" : "var(--ri-white)";
+  const cardBorder = onInk ? "var(--ri-dark-edge)" : "var(--ri-hairline)";
+  const textColor = onInk ? "var(--ri-dark-text)" : "var(--ri-ink)";
+  const mutedColor = onInk ? "var(--ri-dark-muted)" : "var(--ri-muted)";
+
   return (
     <div
       id={id}
+      className="ri-card"
       style={{
         minWidth: 0,
-        border: "1px solid var(--accent-line)",
-        borderRadius: 20,
-        background: "linear-gradient(180deg, #0E1113, #0A0C0D)",
-        padding: "clamp(22px, 3.2vw, 34px)",
-        boxShadow: "0 50px 90px -60px rgba(0,0,0,0.95)",
+        background: cardBg,
+        borderColor: cardBorder,
+        color: textColor,
       }}
     >
       <h2
         style={{
+          fontFamily: "var(--ri-font-display)",
           fontSize: "clamp(20px, 2.4vw, 22px)",
-          letterSpacing: "-0.026em",
-          fontWeight: 500,
-          color: "var(--text)",
+          letterSpacing: "-0.01em",
+          fontWeight: 800,
+          color: textColor,
           marginBottom: 8,
         }}
       >
         {title}
       </h2>
-      <p style={{ fontSize: 15, lineHeight: 1.6, color: "var(--text-muted)", margin: "0 0 22px" }}>
+      <p style={{ fontSize: 15, lineHeight: 1.6, color: mutedColor, margin: "0 0 22px" }}>
         One business day. You get whether it&rsquo;s worth automating, a rough range, and what
         we&rsquo;d need to see. No deck, no discovery series.
       </p>
@@ -110,10 +117,18 @@ export default function ContactForm({
       <div aria-live="polite" role="status">
         {status === "success" && (
           <div style={{ padding: "40px 0", textAlign: "center" }}>
-            <div style={{ fontSize: 28, fontWeight: 500, color: "var(--accent)", marginBottom: 12 }}>
+            <div
+              style={{
+                fontFamily: "var(--ri-font-display)",
+                fontSize: 26,
+                fontWeight: 800,
+                color: textColor,
+                marginBottom: 12,
+              }}
+            >
               Got it, thank you.
             </div>
-            <div style={{ fontSize: 15, color: "var(--text-muted)" }}>
+            <div style={{ fontSize: 15, color: mutedColor }}>
               A person will read it and reply within one business day.
             </div>
           </div>
@@ -123,7 +138,7 @@ export default function ContactForm({
       {status !== "success" && (
         <form style={{ display: "grid", gap: 14 }} onSubmit={onSubmit} noValidate={false}>
           <div>
-            <label htmlFor={nameId} style={labelStyle}>
+            <label htmlFor={nameId} style={{ ...labelStyle, color: mutedColor }}>
               Your name
             </label>
             <input
@@ -133,12 +148,12 @@ export default function ContactForm({
               placeholder="Jordan Reed"
               required
               autoComplete="name"
-              style={inputStyle}
+              style={onInk ? { ...inputStyle, border: "2px solid var(--ri-dark-edge)", background: "transparent", color: textColor } : inputStyle}
             />
           </div>
 
           <div>
-            <label htmlFor={emailId} style={labelStyle}>
+            <label htmlFor={emailId} style={{ ...labelStyle, color: mutedColor }}>
               Work email
             </label>
             <input
@@ -151,12 +166,17 @@ export default function ContactForm({
               inputMode="email"
               aria-invalid={emailError ? true : undefined}
               aria-describedby={emailError ? errorId : undefined}
-              style={{ ...inputStyle, borderColor: emailError ? "var(--danger)" : "#26292C" }}
+              style={{
+                ...(onInk
+                  ? { ...inputStyle, border: "2px solid var(--ri-dark-edge)", background: "transparent", color: textColor }
+                  : inputStyle),
+                borderColor: emailError ? "var(--ri-alert)" : undefined,
+              }}
             />
             {emailError && (
               <div
                 id={errorId}
-                style={{ fontSize: 13, color: "var(--danger)", fontFamily: MONO, marginTop: 7 }}
+                style={{ fontSize: 13, color: "var(--ri-alert)", fontFamily: "var(--ri-font-display)", marginTop: 7 }}
               >
                 {emailError}
               </div>
@@ -164,7 +184,7 @@ export default function ContactForm({
           </div>
 
           <div>
-            <label htmlFor={processId} style={labelStyle}>
+            <label htmlFor={processId} style={{ ...labelStyle, color: mutedColor }}>
               {hint}
             </label>
             <input
@@ -174,7 +194,7 @@ export default function ContactForm({
               placeholder="Manual time entry across 40 attorneys"
               required
               autoComplete="off"
-              style={inputStyle}
+              style={onInk ? { ...inputStyle, border: "2px solid var(--ri-dark-edge)", background: "transparent", color: textColor } : inputStyle}
             />
           </div>
 
@@ -186,9 +206,11 @@ export default function ContactForm({
 
           <div aria-live="assertive">
             {status === "error" && (
-              <div style={{ fontSize: 14, color: "var(--danger)", fontFamily: MONO }}>
+              <div style={{ fontSize: 14, color: "var(--ri-alert)", fontFamily: "var(--ri-font-display)" }}>
                 Something went wrong. Try again, or email{" "}
-                <a href="mailto:sales@revenueinstitute.com">sales@revenueinstitute.com</a>
+                <a href="mailto:sales@revenueinstitute.com" style={{ color: "inherit", textDecoration: "underline" }}>
+                  sales@revenueinstitute.com
+                </a>
               </div>
             )}
           </div>
@@ -196,36 +218,25 @@ export default function ContactForm({
           <button
             type="submit"
             disabled={status === "submitting"}
-            style={{
-              width: "100%",
-              fontSize: 16,
-              fontWeight: 500,
-              color: "var(--bg)",
-              background: status === "submitting" ? "var(--accent-deep)" : "var(--accent)",
-              border: 0,
-              minHeight: 52,
-              padding: 16,
-              borderRadius: 100,
-              cursor: status === "submitting" ? "wait" : "pointer",
-              marginTop: 2,
-            }}
-            className="hover-white"
+            className="ri-btn"
+            style={{ width: "100%", marginTop: 2 }}
           >
-            {status === "submitting" ? "Sending…" : "Get my straight answer →"}
+            {status === "submitting" ? "Sending..." : "Get my straight answer ->"}
           </button>
         </form>
       )}
 
       <div
         style={{
-          fontFamily: MONO,
+          fontFamily: "var(--ri-font-display)",
           fontSize: 11,
-          color: "var(--text-faint)",
+          color: mutedColor,
           marginTop: 16,
           textAlign: "center",
+          letterSpacing: "0.02em",
         }}
       >
-        One business day · a person reads it · no sequence
+        One business day - a person reads it - no sequence
       </div>
     </div>
   );

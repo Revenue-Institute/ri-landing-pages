@@ -27,6 +27,8 @@ export interface Vertical {
 export interface AdGroup {
   eyebrow: string;
   headline: string;
+  /** Exact substring of `headline` wrapped in the brand's green highlight block - must appear verbatim at the end of headline. */
+  headlineHighlight: string;
   subhead: string;
   points: string[];
   formTitle: string;
@@ -251,6 +253,7 @@ export const adGroups: Record<string, AdGroup> = {
   "AI Process Automation": {
     eyebrow: "AI process automation for professional services",
     headline: "Consultants hand you a deck. We hand you a running AI system.",
+    headlineHighlight: "a running AI system",
     subhead:
       "We evaluate which manual workflow costs you most, build the automation on your real data, and run it after go-live. Live in 45 days.",
     points: [
@@ -264,6 +267,7 @@ export const adGroups: Record<string, AdGroup> = {
   "Intake & Legal Operations": {
     eyebrow: "Intake & legal operations automation",
     headline: "Every inquiry answered and qualified before anyone picks up.",
+    headlineHighlight: "before anyone picks up",
     subhead:
       "Matter-aware intake that routes, scores, and follows up on its own, wired into the practice management system you already run.",
     points: [
@@ -277,6 +281,7 @@ export const adGroups: Record<string, AdGroup> = {
   "Billing, Time & AR": {
     eyebrow: "Billing, time capture & AR automation",
     headline: "The hours your team worked, actually on the bill.",
+    headlineHighlight: "on the bill",
     subhead:
       "Time capture assembled from calendar, email, and documents; coded, approved, and written to your system the same day. Then AR chases itself.",
     points: [
@@ -300,7 +305,38 @@ export const compareRows: CompareRow[] = [
   { label: "Compliance handled per firm type", ri: "Yes", consult: "Sometimes", internal: "Yes", tool: "No" },
 ];
 
-export const faqItems = [
+export interface AnswerItem {
+  q: string;
+  a: string;
+  stat?: string;
+  statLabel?: string;
+}
+
+/**
+ * A single Q&A/objections accordion - brand.md explicitly forbids having
+ * both a separate objections block and an FAQ block, so the emotional
+ * objections (which used to be their own stat-card section) and the
+ * practical FAQs are merged into one list here.
+ */
+export const answerItems: AnswerItem[] = [
+  {
+    q: "“AI is hype. It won’t work in a firm like mine.”",
+    a: "Then judge it on a number, not a narrative.",
+    stat: "+326%",
+    statLabel: "leads, spend down",
+  },
+  {
+    q: "“We don’t have bandwidth for an implementation.”",
+    a: "Four hours from your team, all in week one.",
+    stat: "2.5 wks",
+    statLabel: "start to finish",
+  },
+  {
+    q: "“We hired a consultant once and got slides.”",
+    a: "We stay on the system after go-live.",
+    stat: "136 hrs",
+    statLabel: "back per week",
+  },
   {
     q: "How is this different from an AI consultant?",
     a: "Consultants deliver a recommendation and leave. We build the system and run it as an operating partner, measured on hours recovered and revenue moved.",
@@ -342,56 +378,20 @@ export const jsonLd = {
     },
     {
       "@type": "FAQPage",
-      mainEntity: [
-        {
+      // Generated from answerItems so the structured data always matches
+      // what's actually visible on the page - only the plain-question
+      // entries make sense as schema.org Questions, not the quoted
+      // objections, which read as statements rather than questions.
+      mainEntity: answerItems
+        .filter((item) => !item.q.startsWith("“"))
+        .map((item) => ({
           "@type": "Question",
-          name: "What does Revenue Institute do?",
+          name: item.q,
           acceptedAnswer: {
             "@type": "Answer",
-            text: "Revenue Institute evaluates, builds, and operates the systems a professional services firm runs on. Engagements start with a fixed-scope process automation, prove out on the firm's own data, and expand into AI Operators that own a process end to end. A working system is live inside 100 days.",
+            text: item.a,
           },
-        },
-        {
-          "@type": "Question",
-          name: "How is this different from hiring an AI consultant?",
-          acceptedAnswer: {
-            "@type": "Answer",
-            text: "Consultants deliver a recommendation and leave. Revenue Institute builds the system and then runs it day to day as an operating partner, measured on hours recovered and revenue moved rather than on deliverables.",
-          },
-        },
-        {
-          "@type": "Question",
-          name: "What is the smallest way to start?",
-          acceptedAnswer: {
-            "@type": "Answer",
-            text: "A single fixed-scope process automation on the firm's highest-cost manual workflow, typically live in as little as 10 days and priced against the payroll it avoids.",
-          },
-        },
-        {
-          "@type": "Question",
-          name: "How long does a full implementation take?",
-          acceptedAnswer: {
-            "@type": "Answer",
-            text: "Audit to deployed system inside 100 days: weeks 1-3 capture, weeks 4-10 orchestrate, weeks 11-14 run. The client team commits roughly four hours, all during capture.",
-          },
-        },
-        {
-          "@type": "Question",
-          name: "Is this about replacing employees with AI?",
-          acceptedAnswer: {
-            "@type": "Answer",
-            text: "No. The target is the roles a firm has not hired yet. Existing staff keep the judgment work; systems absorb repetitive process work, and most firms redeploy freed hours instead of reducing headcount.",
-          },
-        },
-        {
-          "@type": "Question",
-          name: "Is it safe for a firm under confidentiality or regulatory obligations?",
-          acceptedAnswer: {
-            "@type": "Answer",
-            text: "Yes. No client data goes into public models, systems are built inside the firm's own tenancy and access controls, every automated action carries an audit trail, and privilege or books-and-records constraints are handled per firm type.",
-          },
-        },
-      ],
+        })),
     },
   ],
 };

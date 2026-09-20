@@ -1,46 +1,33 @@
 /* ============================================================
-   Design tokens
-   Greys are tuned so every text colour clears WCAG AA (4.5:1)
-   against the surface it is actually used on.
+   Design tokens - Revenue Institute brand system (docs/brand.md).
+   Site-wide as of the full rebrand: the whole site is one brand now,
+   not a dark marketing page plus a separately-themed assessment tool.
    ============================================================ */
 :root {
-  /* Dark surfaces */
-  --bg: #08090a;
-  --bg-card: #0b0d0e;
-  --bg-green: #0d1512;
-  --bg-input: #0a0c0d;
+  --ri-green: #12d68e;
+  --ri-green-hover: #0fc282;
+  --ri-green-press: #0aae72;
+  --ri-ink: #0e0d12;
+  --ri-white: #ffffff;
+  --ri-mist: #f4f4f6;
+  --ri-body: #3a3944;
+  --ri-muted: #6b6975;
+  --ri-hairline: #e4e3e8;
+  --ri-green-wash: #e6faf2;
+  --ri-alert: #d93a16;
+  --ri-alert-lift: #ff7a55;
 
-  /* Dark-surface text */
-  --text: #f3f4f1;
-  --text-body: #a9afab; /* 8.9:1  */
-  --text-muted: #8d9490; /* 6.4:1  */
-  --text-dim: #949b97; /* 7.1:1  - was #6C736F @ 4.0:1 */
-  --text-faint: #8b928e; /* 6.2:1  - was #5F6764 @ 3.4:1 */
+  /* Dark product surfaces only - full-bleed ink bands, never the page ground */
+  --ri-dark-ground: #0e0d12;
+  --ri-dark-panel: #17161d;
+  --ri-dark-edge: #2a2833;
+  --ri-dark-text: #f4f4f6;
+  --ri-dark-muted: #9d9ba8;
 
-  /* Accent */
-  --accent: #5be0a5; /* 12:1   */
-  --accent-deep: #3a8c68;
-  --accent-line: #1e3a2d;
+  --ri-font-display: var(--font-grotesk), system-ui, sans-serif;
+  --ri-font-body: var(--font-serif), Georgia, serif;
 
-  /* Hairlines */
-  --line: #14171a;
-  --line-2: #17191b;
-  --line-3: #1a1e21;
-  --line-4: #1e2124;
-  --line-green: #17251f;
-
-  /* Light section */
-  --l-bg: #f2f3f0;
-  --l-surface: #ffffff;
-  --l-text: #08090a;
-  --l-muted: #5a625c; /* 6.6:1 on #F2F3F0 - was #7C837E @ 3.5:1 */
-  --l-faint: #6b726d; /* 5.0:1 on #FFFFFF - was #9DA39F @ 2.6:1 */
-  --l-line: #d9dbd5;
-  --l-line-2: #edeeea;
-  --l-ri: #1d5b42;
-  --l-ri-bg: #f4faf6;
-
-  --danger: #ff8a8a; /* 7.4:1 on dark - was #ff6b6b @ 5.6:1, kept clear of accent */
+  --danger: #d93a16;
 
   /* Fluid rhythm */
   --pad-x: clamp(20px, 5vw, 48px);
@@ -64,8 +51,9 @@ html {
 }
 
 body {
-  background: var(--bg);
-  color: var(--text);
+  background: var(--ri-white);
+  color: var(--ri-body);
+  font-family: var(--ri-font-body);
   -webkit-font-smoothing: antialiased;
 }
 
@@ -73,6 +61,12 @@ body {
 @media (max-width: 899px) {
   body {
     padding-bottom: 74px;
+  }
+}
+/* The assessment flow renders no such bar - see AssessmentPageChrome. */
+@media (max-width: 899px) {
+  body:has(.assessment-page) {
+    padding-bottom: 0;
   }
 }
 
@@ -89,19 +83,23 @@ body {
   }
 }
 
+h1, h2, h3, h4 {
+  font-family: var(--ri-font-display);
+  color: var(--ri-ink);
+}
+
 a {
-  color: var(--accent);
+  color: var(--ri-ink);
   text-decoration: none;
 }
 a:hover {
-  color: var(--text);
+  text-decoration: underline;
 }
 
-/* Visible keyboard focus on every interactive element */
+/* Ink, not green - a green ring is invisible on white (brand.md section 5) */
 :focus-visible {
-  outline: 2px solid var(--accent);
+  outline: 2px solid var(--ri-ink);
   outline-offset: 3px;
-  border-radius: 4px;
 }
 input:focus-visible,
 textarea:focus-visible {
@@ -117,8 +115,8 @@ summary::-webkit-details-marker {
 }
 
 ::selection {
-  background: var(--accent);
-  color: var(--bg);
+  background: var(--ri-green);
+  color: var(--ri-ink);
 }
 
 /* 16px minimum stops iOS zooming the page on field focus */
@@ -126,16 +124,183 @@ input,
 select,
 textarea,
 button {
-  font-family: var(--font-grotesk), "Helvetica Neue", Helvetica, sans-serif;
+  font-family: var(--ri-font-display), "Helvetica Neue", Helvetica, sans-serif;
   font-size: 16px;
 }
 input::placeholder {
-  color: #7d847f;
+  color: var(--ri-muted);
   opacity: 1;
 }
 
 img {
   max-width: 100%;
+}
+
+/* ============================================================
+   Brand component primitives (docs/brand.md section 5, verbatim)
+   Global, so any page can use them - not just the assessments.
+   ============================================================ */
+.ri-topbar {
+  height: 10px;
+  background: var(--ri-green);
+}
+
+.ri-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--ri-green);
+  color: var(--ri-ink);
+  border: 0;
+  border-radius: 0;
+  padding: 16px 26px;
+  font-family: var(--ri-font-display);
+  font-size: 15px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: background 150ms ease;
+}
+.ri-btn:hover {
+  background: var(--ri-green-hover);
+  text-decoration: none;
+}
+.ri-btn:active {
+  background: var(--ri-green-press);
+}
+.ri-btn:disabled {
+  background: var(--ri-hairline);
+  color: var(--ri-muted);
+  cursor: default;
+}
+
+.ri-btn-2 {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--ri-white);
+  color: var(--ri-ink);
+  border: 2px solid var(--ri-ink);
+  border-radius: 0;
+  padding: 14px 24px;
+  font-family: var(--ri-font-display);
+  font-size: 15px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: background 150ms ease, color 150ms ease;
+}
+.ri-btn-2:hover {
+  background: var(--ri-ink);
+  color: var(--ri-white);
+  text-decoration: none;
+}
+/* On an ink band, the secondary button inverts - ink bg would vanish. */
+.ri-band-ink .ri-btn-2 {
+  background: transparent;
+  border-color: var(--ri-dark-text);
+  color: var(--ri-dark-text);
+}
+.ri-band-ink .ri-btn-2:hover {
+  background: var(--ri-dark-text);
+  color: var(--ri-ink);
+}
+
+/* Text link - green highlight on hover, never green letterforms */
+.ri-link {
+  color: var(--ri-ink);
+  text-decoration: none;
+  border-bottom: 2px solid var(--ri-ink);
+  font-family: var(--ri-font-display);
+  font-weight: 700;
+  padding-bottom: 1px;
+}
+.ri-link:hover {
+  background: var(--ri-green);
+  border-bottom-color: transparent;
+  text-decoration: none;
+}
+.ri-band-ink .ri-link {
+  color: var(--ri-dark-text);
+  border-bottom-color: var(--ri-dark-text);
+}
+
+.ri-chip-ink,
+.ri-chip-green {
+  display: inline-block;
+  font-family: var(--ri-font-display);
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  padding: 7px 12px;
+}
+.ri-chip-ink {
+  background: var(--ri-ink);
+  color: var(--ri-white);
+}
+.ri-chip-green {
+  background: var(--ri-green);
+  color: var(--ri-ink);
+}
+
+/* Headline highlight - the page's one green moment above the fold */
+.ri-hl {
+  background: var(--ri-green);
+  color: var(--ri-ink);
+  padding: 0 14px 6px;
+  box-decoration-break: clone;
+  -webkit-box-decoration-break: clone;
+}
+
+.ri-card {
+  border: 1px solid var(--ri-hairline);
+  border-radius: 0;
+  padding: var(--card-pad);
+  background: var(--ri-white);
+}
+
+.ri-stat {
+  border-top: 3px solid var(--ri-ink);
+  padding-top: 14px;
+  font-family: var(--ri-font-display);
+  font-variant-numeric: tabular-nums;
+}
+.ri-band-ink .ri-stat {
+  border-top-color: var(--ri-green);
+}
+
+.ri-callout {
+  border-left: 4px solid var(--ri-alert);
+  padding: 14px 0 14px 16px;
+}
+
+.ri-input {
+  border: 2px solid var(--ri-ink);
+  border-radius: 0;
+  padding: 13px 14px;
+  font-family: var(--ri-font-display);
+  font-size: 16px;
+  width: 100%;
+  background: var(--ri-white);
+  color: var(--ri-ink);
+  min-height: 52px;
+}
+
+/* Full-bleed dark band - proof/case-study/closing sections only */
+.ri-band-ink {
+  background: var(--ri-dark-ground);
+  color: var(--ri-dark-text);
+}
+.ri-band-ink h1, .ri-band-ink h2, .ri-band-ink h3, .ri-band-ink h4 {
+  color: var(--ri-dark-text);
+}
+.ri-band-ink .ri-card {
+  background: var(--ri-dark-panel);
+  border-color: var(--ri-dark-edge);
+  color: var(--ri-dark-text);
 }
 
 /* ============================================================
@@ -165,11 +330,10 @@ a.sr-only:focus-visible {
   margin: 0;
   padding: 12px 20px;
   clip: auto;
-  border-radius: 100px;
-  background: var(--accent);
-  color: var(--bg);
+  background: var(--ri-green);
+  color: var(--ri-ink);
   font-size: 15px;
-  font-weight: 500;
+  font-weight: 700;
 }
 
 /* Guarantees a 44x44 touch target without changing visual size */
@@ -181,7 +345,7 @@ a.sr-only:focus-visible {
 }
 
 .wrap {
-  max-width: 1320px;
+  max-width: 1280px;
   margin: 0 auto;
   padding-left: var(--pad-x);
   padding-right: var(--pad-x);
@@ -200,12 +364,6 @@ a.sr-only:focus-visible {
   scroll-margin-top: calc(var(--header-h) + 16px);
 }
 
-.hover-light:hover {
-  color: var(--text);
-}
-.hover-white:hover {
-  background: var(--text);
-}
 .hover-opacity:hover {
   opacity: 1 !important;
 }
@@ -227,21 +385,17 @@ a.sr-only:focus-visible {
    Header
    ============================================================ */
 .hdr-inner {
-  max-width: 1320px;
+  max-width: 1280px;
   margin: 0 auto;
-  padding: 12px var(--pad-x);
+  padding: 14px var(--pad-x);
   display: flex;
   align-items: center;
   gap: 16px;
 }
-.hdr-logo img {
-  width: clamp(96px, 12vw, 120px);
-  height: auto;
-}
 .hdr-phone {
   margin-left: auto;
   font-size: 15px;
-  color: var(--text-muted);
+  color: var(--ri-body);
   padding: 0 4px;
 }
 /* The header CTA is redundant on mobile - the fixed bottom bar covers it,
@@ -252,48 +406,19 @@ a.sr-only:focus-visible {
   }
 }
 
-/* The banner wrapped to two lines on a phone and took a fifth of the first
-   screen. Drop the qualifier so it stays on one line. */
-@media (max-width: 620px) {
-  .banner-detail {
-    display: none;
-  }
-}
-
 /* ============================================================
-   Hero - on mobile the form is pulled above the supporting
-   bullets so the primary action is reachable in one scroll.
+   Hero
    ============================================================ */
 .hero-grid {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
-  grid-template-areas: "copy" "form" "points";
   gap: clamp(32px, 4vw, 40px);
-}
-.hero-copy {
-  grid-area: copy;
-  min-width: 0;
-}
-.hero-form-slot {
-  grid-area: form;
-  min-width: 0;
-}
-.hero-points {
-  grid-area: points;
-  min-width: 0;
 }
 @media (min-width: 900px) {
   .hero-grid {
-    grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.95fr);
-    grid-template-areas:
-      "copy form"
-      "points form";
+    grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr);
     column-gap: 56px;
-    row-gap: 28px;
-    align-items: start;
-  }
-  .hero-form-slot {
-    align-self: start;
+    align-items: center;
   }
 }
 
@@ -385,16 +510,15 @@ a.sr-only:focus-visible {
   .cmp-cell::before {
     display: block;
     content: attr(data-col);
-    font-family: var(--font-mono), monospace;
+    font-family: var(--ri-font-display);
     font-size: 11px;
     letter-spacing: 0.08em;
     text-transform: uppercase;
-    color: var(--l-muted);
+    color: var(--ri-muted);
     text-align: left;
   }
   .cmp-cell-ri {
-    background: var(--l-ri-bg) !important;
-    border-radius: 8px;
+    background: var(--ri-green-wash) !important;
     margin: 2px 12px;
     padding: 10px 16px !important;
   }
@@ -418,27 +542,472 @@ a.sr-only:focus-visible {
     grid-template-columns: auto minmax(0, 1fr);
     gap: 10px;
     padding: 10px 14px calc(10px + env(safe-area-inset-bottom));
-    background: rgba(8, 9, 10, 0.92);
+    background: rgba(14, 13, 18, 0.94);
     backdrop-filter: blur(16px);
-    border-top: 1px solid var(--line-3);
+    border-top: 1px solid var(--ri-dark-edge);
   }
   .mobile-cta a {
     display: flex;
     align-items: center;
     justify-content: center;
     min-height: 48px;
-    border-radius: 100px;
-    font-size: 15px;
-    font-weight: 500;
+    font-family: var(--ri-font-display);
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: 0.02em;
   }
   .mobile-cta-call {
     padding: 0 20px;
-    border: 1px solid #2a2e31;
-    color: var(--text);
+    border: 2px solid var(--ri-dark-text);
+    color: var(--ri-dark-text);
   }
   .mobile-cta-main {
     padding: 0 18px;
-    background: var(--accent);
-    color: var(--bg);
+    background: var(--ri-green);
+    color: var(--ri-ink);
+    text-transform: uppercase;
   }
+}
+
+/* ============================================================
+   Assessment pages - CleverSite and PIE, built on the Revenue
+   Institute brand system in docs/brand.md. Scoped entirely under
+   .assessment-page so the dark landing-page theme is untouched
+   outside it.
+
+   The governing rule from brand.md: --ri-green at 1.90:1 on white
+   fails contrast, so green is FILL ONLY (with ink text on top) -
+   never text, icons, or thin rules on a light ground. Per screen,
+   green appears exactly once, on the thing meant to be clicked (the
+   primary button). Everywhere else uses ink, mist, or hairline.
+   Radius is 0 and shadows are unused, per brand.md section 4.
+   ============================================================ */
+
+/* Brand tokens and :focus-visible are global now (see the top of this
+   file) - the whole site shares one brand, this just sets the page's
+   background/type and reserves mobile space, per screens with no
+   MobileActionBar equivalent. */
+.assessment-page {
+  background: var(--ri-white);
+  color: var(--ri-body);
+  font-family: var(--ri-font-body);
+  min-height: 100vh;
+}
+
+.assessment-page-header {
+  border-bottom: 2px solid var(--ri-ink);
+}
+.assessment-page-header-inner {
+  padding-top: 16px;
+  padding-bottom: 16px;
+  display: flex;
+  align-items: center;
+}
+.assessment-wordmark {
+  display: inline-flex;
+  align-items: center;
+}
+.assessment-wordmark img {
+  display: block;
+  height: auto;
+}
+.assessment-page-footer {
+  border-top: 1px solid var(--ri-hairline);
+}
+.assessment-page-footer-inner {
+  padding-top: 22px;
+  padding-bottom: 32px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+  font-family: var(--ri-font-display);
+  font-size: 12px;
+  color: var(--ri-muted);
+}
+.assessment-page-footer-inner a {
+  color: var(--ri-muted);
+}
+.assessment-page-footer-inner a:hover {
+  color: var(--ri-ink);
+}
+
+.assessment-shell {
+  max-width: 640px;
+  margin: 0 auto;
+  padding: clamp(40px, 8vw, 96px) var(--pad-x) clamp(56px, 10vw, 120px);
+  display: flex;
+  flex-direction: column;
+  gap: clamp(28px, 4vw, 40px);
+}
+
+@keyframes assessment-fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.assessment-step {
+  animation: assessment-fade-in 180ms ease-out;
+}
+
+/* .ri-card, brand.md section 5 */
+.assessment-card {
+  min-width: 0;
+  border: 1px solid var(--ri-hairline);
+  border-radius: 0;
+  background: var(--ri-white);
+  padding: var(--card-pad);
+}
+
+/* Intro / landing screen - the "reason to start" before question 1 */
+/* .ri-chip-ink, brand.md section 5 */
+.assessment-chip {
+  display: inline-block;
+  font-family: var(--ri-font-display);
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--ri-white);
+  background: var(--ri-ink);
+  padding: 7px 12px;
+  margin-bottom: 22px;
+}
+.assessment-intro-headline {
+  font-family: var(--ri-font-display);
+  font-size: clamp(1.75rem, 4.5vw, 2.5rem);
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+  font-weight: 900;
+  color: var(--ri-ink);
+  margin-bottom: 20px;
+  max-width: 20ch;
+  text-wrap: pretty;
+}
+/* "Lead" role, brand.md section 3 - serif, 21px/1.5 */
+.assessment-intro-lead {
+  font-size: 21px;
+  line-height: 1.5;
+  color: var(--ri-body);
+  margin-bottom: 28px;
+  max-width: 56ch;
+}
+
+/* Eyebrow, brand.md section 3 - muted, never green, on a light ground */
+.assessment-eyebrow {
+  font-family: var(--ri-font-display);
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--ri-muted);
+  margin-bottom: 14px;
+}
+
+/* Progress bar - ink, not green: eight filled segments would otherwise
+   spend eight "one green element" budgets on pure navigation chrome. */
+.assessment-progress-track {
+  display: flex;
+  gap: 6px;
+}
+.assessment-progress-seg {
+  flex: 1 1 0;
+  height: 3px;
+  border-radius: 0;
+  background: var(--ri-hairline);
+}
+.assessment-progress-seg-filled {
+  background: var(--ri-ink);
+}
+
+/* Question card */
+.qc-fieldset {
+  border: 0;
+  margin: 0;
+  padding: 0;
+}
+.qc-legend {
+  display: block;
+  padding: 0;
+  font-family: var(--ri-font-display);
+  font-size: clamp(1.375rem, 3vw, 1.625rem);
+  line-height: 1.25;
+  letter-spacing: -0.01em;
+  font-weight: 700;
+  color: var(--ri-ink);
+  margin-bottom: clamp(20px, 3vw, 28px);
+  max-width: 34ch;
+  text-wrap: pretty;
+}
+.qc-options {
+  display: grid;
+  gap: 10px;
+}
+.qc-option {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  min-height: 56px;
+  padding: 14px 18px;
+  border: 1px solid var(--ri-hairline);
+  border-radius: 0;
+  background: var(--ri-white);
+  cursor: pointer;
+  transition: border-color 150ms ease, background 150ms ease;
+}
+.qc-option:hover {
+  border-color: var(--ri-ink);
+}
+/* Selected state uses ink, not green - only one green element is spent
+   per screen, and here it belongs to the primary button, not to every
+   answered question. */
+.qc-option-selected {
+  border: 2px solid var(--ri-ink);
+  padding: 13px 17px; /* hold the 56px box steady against the thicker border */
+  background: var(--ri-mist);
+}
+.qc-option-label {
+  flex: 1 1 auto;
+  font-family: var(--ri-font-display);
+  font-size: 16px;
+  line-height: 1.4;
+  color: var(--ri-body);
+}
+.qc-option-selected .qc-option-label {
+  color: var(--ri-ink);
+}
+/* Square, not round - brand.md section 4: border radius 0, everywhere. */
+.qc-option-dot {
+  width: 18px;
+  height: 18px;
+  border-radius: 0;
+  border: 1.5px solid var(--ri-hairline);
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.qc-option-selected .qc-option-dot {
+  border-color: var(--ri-ink);
+}
+.qc-option-dot-fill {
+  width: 10px;
+  height: 10px;
+  border-radius: 0;
+  background: var(--ri-ink);
+}
+/* .ri-link, brand.md section 5 - ink text and underline; green appears
+   only on hover, as a highlight, never as the resting color. */
+.qc-back {
+  margin-top: 20px;
+  background: none;
+  border: 0;
+  border-bottom: 2px solid var(--ri-ink);
+  border-radius: 0;
+  padding: 8px 2px;
+  min-height: 44px;
+  font-family: var(--ri-font-display);
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--ri-ink);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.qc-back:hover {
+  background: var(--ri-green);
+  border-bottom-color: transparent;
+}
+
+/* Contact gate */
+.assessment-gate-title {
+  font-family: var(--ri-font-display);
+  font-size: clamp(1.375rem, 3vw, 1.625rem);
+  line-height: 1.25;
+  letter-spacing: -0.01em;
+  font-weight: 700;
+  color: var(--ri-ink);
+  margin-bottom: 10px;
+}
+.assessment-gate-copy {
+  font-size: 15px;
+  line-height: 1.55;
+  color: var(--ri-muted);
+  margin-bottom: clamp(20px, 3vw, 28px);
+}
+/* .ri-btn, brand.md section 5 - the one green element on this screen. */
+.assessment-submit-btn {
+  width: 100%;
+  font-family: var(--ri-font-display);
+  font-size: 15px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--ri-ink);
+  background: var(--ri-green);
+  border: 0;
+  border-radius: 0;
+  min-height: 52px;
+  padding: 16px;
+  cursor: pointer;
+  margin-top: 2px;
+  transition: background 150ms ease;
+}
+.assessment-submit-btn:hover {
+  background: var(--ri-green-hover);
+}
+.assessment-submit-btn:active {
+  background: var(--ri-green-press);
+}
+
+/* Result report */
+/* .ri-stat, brand.md section 3/5 - ink, tabular numerals, never green text. */
+.assessment-result-score {
+  font-family: var(--ri-font-display);
+  font-size: clamp(2.75rem, 7vw, 3.5rem);
+  line-height: 1;
+  letter-spacing: -0.04em;
+  font-weight: 900;
+  font-variant-numeric: tabular-nums;
+  color: var(--ri-ink);
+  border-top: 3px solid var(--ri-ink);
+  padding-top: 14px;
+  margin-bottom: 10px;
+}
+.assessment-result-headline {
+  font-family: var(--ri-font-display);
+  font-size: clamp(1.25rem, 2.6vw, 1.5rem);
+  line-height: 1.3;
+  letter-spacing: -0.01em;
+  font-weight: 700;
+  color: var(--ri-ink);
+  margin-bottom: clamp(24px, 3vw, 32px);
+}
+.assessment-result-bars {
+  display: grid;
+  gap: 18px;
+  margin-bottom: clamp(24px, 3vw, 32px);
+  padding-bottom: clamp(24px, 3vw, 32px);
+  border-bottom: 1px solid var(--ri-hairline);
+}
+.assessment-result-bar-label {
+  display: flex;
+  justify-content: space-between;
+  font-family: var(--ri-font-display);
+  font-size: 14px;
+  color: var(--ri-muted);
+  margin-bottom: 8px;
+}
+.assessment-result-bar-value {
+  color: var(--ri-body);
+  font-variant-numeric: tabular-nums;
+}
+.assessment-result-bar-track {
+  height: 4px;
+  border-radius: 0;
+  background: var(--ri-hairline);
+}
+.assessment-result-bar-fill {
+  height: 4px;
+  border-radius: 0;
+  background: var(--ri-ink);
+}
+/* The weakest dimension is the one thing actually holding the score back -
+   Alert is reserved on brand for exactly this "where it's broken" moment. */
+.assessment-result-bar-fill-signal {
+  background: var(--ri-alert);
+}
+.assessment-result-narrative {
+  font-size: 18px;
+  line-height: 1.65;
+  color: var(--ri-body);
+  margin-bottom: 16px;
+}
+/* .ri-callout, brand.md section 5, verbatim - a left rule, no fill. */
+.assessment-result-callout {
+  font-size: 18px;
+  line-height: 1.65;
+  color: var(--ri-ink);
+  border-left: 4px solid var(--ri-alert);
+  padding: 14px 0 14px 16px;
+  margin-bottom: 20px;
+}
+.assessment-section-label {
+  font-family: var(--ri-font-display);
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ri-muted);
+  margin: 28px 0 14px;
+}
+.assessment-result-dimension-insight {
+  font-size: 15px;
+  line-height: 1.55;
+  color: var(--ri-muted);
+  margin-top: 8px;
+}
+.assessment-recommendations {
+  list-style: none;
+  display: grid;
+  gap: 12px;
+  margin: 0 0 28px;
+  padding: 0;
+}
+.assessment-recommendations li {
+  position: relative;
+  padding-left: 20px;
+  font-size: 16px;
+  line-height: 1.55;
+  color: var(--ri-body);
+}
+.assessment-recommendations li::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 8px;
+  width: 8px;
+  height: 8px;
+  background: var(--ri-ink);
+}
+.assessment-result-cta-line {
+  font-size: 15px;
+  line-height: 1.55;
+  color: var(--ri-muted);
+  margin-bottom: 24px;
+}
+.assessment-result-cta-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  min-height: 52px;
+  font-family: var(--ri-font-display);
+  font-size: 15px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--ri-ink);
+  background: var(--ri-green);
+  border-radius: 0;
+  padding: 0 24px;
+  transition: background 150ms ease;
+}
+.assessment-result-cta-btn:hover {
+  background: var(--ri-green-hover);
+}
+.assessment-result-confirm {
+  margin-top: 16px;
+  font-family: var(--ri-font-display);
+  font-size: 13px;
+  color: var(--ri-muted);
+  text-align: center;
 }

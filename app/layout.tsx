@@ -1,22 +1,25 @@
 import type { Metadata, Viewport } from "next";
 import Script from "next/script";
-import { IBM_Plex_Mono, Schibsted_Grotesk } from "next/font/google";
+import { Schibsted_Grotesk, Source_Serif_4 } from "next/font/google";
 import { jsonLd } from "./data";
 import "./globals.css";
 
 const GTM_ID = "GTM-N9DKBL2";
 
-const mono = IBM_Plex_Mono({
-  weight: ["400", "500"],
+/* Display (headings, UI, all numbers) and Body (paragraphs, leads, quotes)
+   per docs/brand.md section 3 - loaded site-wide since the full rebrand,
+   not just the assessment pages. */
+const grotesk = Schibsted_Grotesk({
+  weight: ["400", "500", "600", "700", "800", "900"],
   subsets: ["latin"],
-  variable: "--font-mono",
+  variable: "--font-grotesk",
   display: "swap",
 });
 
-const grotesk = Schibsted_Grotesk({
-  weight: ["400", "500", "600"],
+const serif = Source_Serif_4({
+  weight: ["400", "600"],
   subsets: ["latin"],
-  variable: "--font-grotesk",
+  variable: "--font-serif",
   display: "swap",
 });
 
@@ -35,7 +38,7 @@ export const metadata: Metadata = {
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
-  themeColor: "#08090A",
+  themeColor: "#ffffff",
 };
 
 export default function RootLayout({
@@ -49,8 +52,11 @@ export default function RootLayout({
      * Router's metadata injection, which pushed <title>, the meta description
      * and every og: tag into <body> where crawlers ignore them.
      */
-    <html lang="en" className={`${mono.variable} ${grotesk.variable}`}>
+    <html lang="en" className={`${grotesk.variable} ${serif.variable}`}>
       <body>
+        {/* Site-wide identity mark, docs/brand.md section 6 item 1 - on
+            every page, not re-rendered per route. */}
+        <div className="ri-topbar" aria-hidden="true" />
         <noscript>
           <iframe
             src={`https://www.googletagmanager.com/ns.html?id=${GTM_ID}`}
