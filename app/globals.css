@@ -246,13 +246,22 @@ img {
   color: var(--ri-ink);
 }
 
-/* Headline highlight - the page's one green moment above the fold */
+/* Headline highlight - the page's one green moment above the fold.
+   box-decoration-break: slice (the default) so a highlight that wraps
+   across lines reads as one continuous shape - clone gave each line its
+   own full padding, which overlapped adjacent lines and orphaned short
+   words in an oversized box. A taller line-height than the H1's own
+   (which is deliberately tight, near 1) is set on the span itself so a
+   highlight that spans two lines still shows a visible gap between rows -
+   at the H1's own line-height, the solid green fill removes the usual
+   whitespace cue between lines and the rows read as pressed together. */
 .ri-hl {
   background: var(--ri-green);
   color: var(--ri-ink);
   padding: 0 14px 6px;
-  box-decoration-break: clone;
-  -webkit-box-decoration-break: clone;
+  line-height: 1.3;
+  box-decoration-break: slice;
+  -webkit-box-decoration-break: slice;
 }
 
 .ri-card {
