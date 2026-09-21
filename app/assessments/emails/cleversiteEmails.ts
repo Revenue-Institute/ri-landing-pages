@@ -1,6 +1,6 @@
 import { escapeHtml } from "@/app/lib/email/html";
 import { buildResultEmailHtml, buildResultEmailText } from "./resultEmailLayout";
-import type { AnswerMap, AssessmentConfig, AssessmentResult } from "@/app/assessments/types";
+import type { AnswerMap, AssessmentConfig, AssessmentResult, IndustryContext } from "@/app/assessments/types";
 
 /**
  * Pure string-building for the two CleverSite assessment emails. No Resend
@@ -30,9 +30,9 @@ function questionPrompt(config: AssessmentConfig, questionId: string, answers: A
   return typeof question.prompt === "function" ? question.prompt(answers) : question.prompt;
 }
 
-export function buildProspectEmail(result: AssessmentResult, name: string): EmailPayload {
+export function buildProspectEmail(result: AssessmentResult, name: string, industry: IndustryContext): EmailPayload {
   const subject = `Your Website Optimization Score: ${result.compositeScore}/100`;
-  const args = { name, scoreLabel: "Website Optimization Score", assessmentName: "CleverSite", result };
+  const args = { name, scoreLabel: "Website Optimization Score", assessmentName: "CleverSite", result, industry };
   return {
     subject,
     html: buildResultEmailHtml(args),
@@ -45,7 +45,8 @@ export function buildInternalEmail(
   name: string,
   email: string,
   answers: AnswerMap,
-  config: AssessmentConfig
+  config: AssessmentConfig,
+  industry: IndustryContext
 ): EmailPayload {
   const company = email.split("@")[1] ?? "unknown";
   const priorityTag = result.leadPriority.toUpperCase();
@@ -92,6 +93,8 @@ export function buildInternalEmail(
     `<div style="font-family: -apple-system, sans-serif; font-size: 15px; line-height: 1.6; color: #111; max-width: 560px;">`,
     `<p><strong>Name:</strong> ${escapeHtml(name)}</p>`,
     `<p><strong>Email:</strong> <a href="mailto:${escapeHtml(email)}">${escapeHtml(email)}</a></p>`,
+    `<p><strong>Company:</strong> ${escapeHtml(industry.companyName ?? company)}${industry.location ? ` - ${escapeHtml(industry.location)}` : ""}${industry.employeeRange ? ` - ~${escapeHtml(industry.employeeRange)} employees` : ""}</p>`,
+    `<p><strong>Industry match:</strong> ${escapeHtml(industry.industryLabel)}${industry.isConfirmedIndustry ? "" : " (unconfirmed - fallback default)"}</p>`,
     `<p><strong>Lead priority:</strong> ${escapeHtml(priorityTag)}</p>`,
     `<p><strong>Composite score:</strong> ${result.compositeScore}/100 (${escapeHtml(result.tier.label)})</p>`,
     `<h3 style="margin: 20px 0 4px; font-size: 16px;">Dimension breakdown</h3>`,
@@ -115,6 +118,8 @@ export function buildInternalEmail(
   const text = [
     `Name: ${name}`,
     `Email: ${email}`,
+    `Company: ${industry.companyName ?? company}${industry.location ? ` - ${industry.location}` : ""}${industry.employeeRange ? ` - ~${industry.employeeRange} employees` : ""}`,
+    `Industry match: ${industry.industryLabel}${industry.isConfirmedIndustry ? "" : " (unconfirmed - fallback default)"}`,
     `Lead priority: ${priorityTag}`,
     `Composite score: ${result.compositeScore}/100 (${result.tier.label})`,
     "",

@@ -10,7 +10,16 @@ export interface Workflow {
   after: WorkflowRow[];
 }
 
+/** Stable identifier for a vertical, independent of its display `name` - used to key content (e.g. assessment industry tie-ins) that must survive copy edits to `name`. */
+export type IndustryKey =
+  | "law-firms"
+  | "consulting-firms"
+  | "financial-services"
+  | "private-equity"
+  | "professional-services";
+
 export interface Vertical {
+  key: IndustryKey;
   name: string;
   buyer: string;
   headline: string;
@@ -43,7 +52,8 @@ export interface CompareRow {
   tool: string;
 }
 
-interface RawVertical extends Omit<Vertical, "workflow"> {
+interface RawVertical extends Omit<Vertical, "key" | "workflow"> {
+  key: IndustryKey;
   workflow: {
     subject: string;
     bw: number[];
@@ -55,6 +65,7 @@ interface RawVertical extends Omit<Vertical, "workflow"> {
 
 const rawVerticals: RawVertical[] = [
   {
+    key: "law-firms",
     name: "Law firms",
     buyer: "For the COO / firm administrator",
     headline: "Matter-aware systems, intake to billed time.",
@@ -89,6 +100,7 @@ const rawVerticals: RawVertical[] = [
     cta: "See the law firm playbook",
   },
   {
+    key: "consulting-firms",
     name: "Consulting firms",
     buyer: "For the COO / head of delivery",
     headline: "Project-aware systems for utilization you can trust.",
@@ -123,6 +135,7 @@ const rawVerticals: RawVertical[] = [
     cta: "See the consulting playbook",
   },
   {
+    key: "financial-services",
     name: "Financial services",
     buyer: "For the COO / chief compliance officer",
     headline: "Compliance-aware systems that return advisors to clients.",
@@ -157,6 +170,7 @@ const rawVerticals: RawVertical[] = [
     cta: "See the financial services playbook",
   },
   {
+    key: "private-equity",
     name: "Private equity",
     buyer: "For the operating partner / portco COO",
     headline: "Investor-grade systems that hit the 100-day plan.",
@@ -191,6 +205,7 @@ const rawVerticals: RawVertical[] = [
     cta: "See the private equity playbook",
   },
   {
+    key: "professional-services",
     name: "Professional services",
     buyer: "For the COO / VP of operations",
     headline: "Delivery-aware systems that protect billable hours.",
@@ -231,6 +246,7 @@ export const verticals: Vertical[] = rawVerticals.map((v) => {
   const zip = (list: { step: string; value: string }[], ws: number[]) =>
     list.map((x, k) => ({ ...x, w: (ws[k] ?? 50) + "%" }));
   return {
+    key: v.key,
     name: v.name,
     buyer: v.buyer,
     headline: v.headline,
@@ -248,6 +264,13 @@ export const verticals: Vertical[] = rawVerticals.map((v) => {
     cta: v.cta,
   };
 });
+
+/** Lookup by stable key - used to attach real per-industry proof (stats, tools, workflow) to content keyed off enrichment results, without coupling to display-name strings. */
+export const verticalsByKey: Record<IndustryKey, Vertical> = Object.fromEntries(
+  verticals.map((v) => [v.key, v])
+) as Record<IndustryKey, Vertical>;
+
+export const INDUSTRY_KEYS: IndustryKey[] = verticals.map((v) => v.key);
 
 export const adGroups: Record<string, AdGroup> = {
   "AI Process Automation": {

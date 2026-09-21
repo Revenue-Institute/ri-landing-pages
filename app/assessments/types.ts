@@ -4,6 +4,8 @@
  * differs. See scoring.ts for how these are turned into a result.
  */
 
+import type { IndustryKey } from "@/app/data";
+
 export type QuestionKind = "context" | "scored" | "priority";
 
 export interface AssessmentOption {
@@ -87,6 +89,46 @@ export interface AssessmentConfig {
   urgencyQuestionId: string;
   /** Question id carrying the buy-in/readiness signal (scored, excluded from composite). */
   buyInQuestionId: string;
+  /**
+   * Which of a vertical's 4 workflow before/after rows (app/data.ts) best
+   * matches each maturity dimension - used to quote a real peer example for
+   * whichever dimension turns out weakest. See industryContext.ts.
+   */
+  dimensionWorkflowRowIndex: Record<string, number>;
+  /**
+   * One line per dimension naming the specific mechanism this product uses
+   * to close that exact gap - same (goalLabel, obstacleLabel) signature as
+   * weakestDimensionCopy, so this continues the same diagnosis the
+   * weakest-line callout opened, instead of starting a new, disconnected
+   * industry-only narrative.
+   */
+  dimensionAiTieIn: Record<string, (goalLabel: string, obstacleLabel: string) => string>;
+  /** Display name of the product referenced in dimensionAiTieIn, e.g. "CleverSite". */
+  productName: string;
+}
+
+/**
+ * The "what others in your industry are doing" section - built from real
+ * per-vertical proof already vetted for the main site (app/data.ts), never
+ * fabricated. Only present when a company profile resolved (see
+ * companyLookup.ts); the result and its score never depend on this.
+ */
+export interface IndustryContext {
+  industryKey: IndustryKey;
+  industryLabel: string;
+  /** True only when this came from a resolved company lookup, not the generic fallback vertical. */
+  isConfirmedIndustry: boolean;
+  companyName: string | null;
+  location: string | null;
+  employeeRange: string | null;
+  /** Real stat/statLabel from the matching vertical, framed as a peer proof point. */
+  peerStatLine: string;
+  /** Real before/after workflow row matching the weakest dimension. */
+  peerWorkflowLine: string;
+  /** Names the tools this vertical typically already runs, so the pitch is "plugs in," not "rip and replace." */
+  toolsLine: string;
+  /** The specific product mechanism that closes the weakest dimension's gap. */
+  aiTieIn: string;
 }
 
 export interface AssessmentResult {
@@ -96,6 +138,9 @@ export interface AssessmentResult {
   weakestDimension: DimensionScore;
   weakestLine: string; // the personalized one-sentence constraint, on its own
   narrative: string; // tier summary + weakest-dimension line, ready to render as one paragraph (used by email)
+  /** The two personalization values baked into weakestLine, exposed so later sections (industryContext.ts) can continue the same diagnosis instead of starting a new one. */
+  goalLabel: string;
+  obstacleLabel: string;
   /** Concrete next actions for the two weakest dimensions, weakest first. */
   recommendations: string[];
   ctaLine: string;

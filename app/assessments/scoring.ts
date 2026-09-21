@@ -118,6 +118,8 @@ export function computeResult(config: AssessmentConfig, answers: AnswerMap): Ass
     weakestDimension,
     weakestLine,
     narrative,
+    goalLabel,
+    obstacleLabel,
     recommendations,
     ctaLine,
     leadPriority: leadPriorityFrom(buyInValue, urgencyValue),

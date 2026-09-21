@@ -5,6 +5,8 @@ import { useRouter } from "next/navigation";
 import type { AssessmentConfig } from "@/app/assessments/types";
 import { track, trackPageview } from "@/app/gtm";
 import AssessmentIntro from "@/app/assessments/engine/AssessmentIntro";
+import { loadStored, persistStored, storageKeyFor } from "@/app/assessments/engine/assessmentStorage";
+import { startLookup } from "@/app/assessments/engine/companyProfileStore";
 
 /**
  * The landing screen at /<id> - the only step that keeps the full page
@@ -22,8 +24,13 @@ export default function AssessmentIntroScreen({ config }: { config: AssessmentCo
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  function handleStart() {
-    track("Assessment Started", { assessment: config.id });
+  function handleStart(website: string) {
+    track("Assessment Started", { assessment: config.id, has_website: Boolean(website) });
+    if (website) {
+      const storageKey = storageKeyFor(config.id);
+      persistStored(storageKey, { ...loadStored(storageKey), website });
+      startLookup(config.id, website);
+    }
     router.push(`/${config.id}/1`);
   }
 

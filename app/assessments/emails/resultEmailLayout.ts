@@ -1,5 +1,5 @@
 import { escapeHtml } from "@/app/lib/email/html";
-import type { AssessmentResult } from "@/app/assessments/types";
+import type { AssessmentResult, IndustryContext } from "@/app/assessments/types";
 
 /**
  * Shared HTML/text template for the prospect's result email (CleverSite,
@@ -45,9 +45,20 @@ export interface ResultEmailArgs {
   scoreLabel: string; // e.g. "Website Optimization Score"
   assessmentName: string; // e.g. "CleverSite" - used only in the footer line
   result: AssessmentResult;
+  industry: IndustryContext;
 }
 
-export function buildResultEmailHtml({ name, scoreLabel, assessmentName, result }: ResultEmailArgs): string {
+function industryForLine(industry: IndustryContext): string {
+  if (industry.companyName) {
+    const size = industry.employeeRange ? `, a ${industry.employeeRange}-person team` : "";
+    const loc = industry.location ? ` in ${industry.location}` : "";
+    return `For ${industry.companyName}${size}${loc}:`;
+  }
+  if (industry.isConfirmedIndustry) return `For ${industry.industryLabel.toLowerCase()} like yours:`;
+  return `Across the ${industry.industryLabel.toLowerCase()} we work with:`;
+}
+
+export function buildResultEmailHtml({ name, scoreLabel, assessmentName, result, industry }: ResultEmailArgs): string {
   const first = escapeHtml(firstName(name));
 
   const dimensionRows = result.dimensionScores
@@ -150,6 +161,31 @@ export function buildResultEmailHtml({ name, scoreLabel, assessmentName, result 
             <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
               ${recommendationRows}
             </table>
+
+            <p style="margin: 30px 0 10px; font-family: ${SANS}; font-size: 12px; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; color: ${C.muted};">
+              What this looks like solved
+            </p>
+            <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background: ${C.mist}; border-left: 4px solid ${C.ink};">
+              <tr>
+                <td style="padding: 16px 18px;">
+                  <p style="margin: 0 0 8px; font-family: ${SANS}; font-size: 11px; font-weight: 800; letter-spacing: 0.06em; text-transform: uppercase; color: ${C.muted};">
+                    ${escapeHtml(industryForLine(industry))}
+                  </p>
+                  <p style="margin: 0 0 10px; font-family: ${SERIF}; font-size: 15px; line-height: 1.55; color: ${C.body};">
+                    ${escapeHtml(industry.peerWorkflowLine)}
+                  </p>
+                  <p style="margin: 0 0 10px; font-family: ${SERIF}; font-size: 15px; line-height: 1.55; color: ${C.body};">
+                    ${escapeHtml(industry.aiTieIn)}
+                  </p>
+                  <p style="margin: 0 0 6px; font-family: ${SERIF}; font-size: 14px; line-height: 1.5; color: ${C.muted};">
+                    ${escapeHtml(industry.toolsLine)}
+                  </p>
+                  <p style="margin: 0; font-family: ${SERIF}; font-size: 14px; line-height: 1.5; color: ${C.muted};">
+                    ${escapeHtml(industry.peerStatLine)}
+                  </p>
+                </td>
+              </tr>
+            </table>
           </td>
         </tr>
         <tr>
@@ -178,7 +214,7 @@ export function buildResultEmailHtml({ name, scoreLabel, assessmentName, result 
 </table>`;
 }
 
-export function buildResultEmailText({ name, scoreLabel, assessmentName, result }: ResultEmailArgs): string {
+export function buildResultEmailText({ name, scoreLabel, assessmentName, result, industry }: ResultEmailArgs): string {
   const dimensionLines = result.dimensionScores
     .map((d) => `  - ${d.label}: ${Math.round(d.score)}\n    ${d.insight}`)
     .join("\n");
@@ -198,6 +234,13 @@ export function buildResultEmailText({ name, scoreLabel, assessmentName, result 
     "",
     "Where to start:",
     recommendationLines,
+    "",
+    "What this looks like solved:",
+    industryForLine(industry),
+    industry.peerWorkflowLine,
+    industry.aiTieIn,
+    industry.toolsLine,
+    industry.peerStatLine,
     "",
     result.ctaLine,
     "Talk it through, no pitch: https://revenueinstitute.com/#start-form",

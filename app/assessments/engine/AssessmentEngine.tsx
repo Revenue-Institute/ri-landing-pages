@@ -9,36 +9,11 @@ import ProgressBar from "@/app/assessments/engine/ProgressBar";
 import QuestionCard from "@/app/assessments/engine/QuestionCard";
 import ContactGate from "@/app/assessments/engine/ContactGate";
 import ResultReport from "@/app/assessments/engine/ResultReport";
+import { loadStored, persistStored, storageKeyFor } from "@/app/assessments/engine/assessmentStorage";
+import { awaitProfile, getCachedProfile } from "@/app/assessments/engine/companyProfileStore";
+import type { CompanyProfile } from "@/app/lib/enrichment/companyLookup";
 
-interface StoredState {
-  answers: AnswerMap;
-  name: string;
-  email: string;
-}
-
-function loadStored(storageKey: string): StoredState | null {
-  try {
-    const raw = sessionStorage.getItem(storageKey);
-    if (!raw) return null;
-    const parsed = JSON.parse(raw);
-    if (typeof parsed?.answers !== "object" || parsed.answers === null) return null;
-    return {
-      answers: parsed.answers,
-      name: typeof parsed.name === "string" ? parsed.name : "",
-      email: typeof parsed.email === "string" ? parsed.email : "",
-    };
-  } catch {
-    return null;
-  }
-}
-
-function persistStored(storageKey: string, state: StoredState) {
-  try {
-    sessionStorage.setItem(storageKey, JSON.stringify(state));
-  } catch {
-    // Private browsing / blocked storage - progress just won't resume.
-  }
-}
+const PROFILE_WAIT_MS = 4000;
 
 /**
  * Renders one step of the flow - a question, the contact gate, or the
@@ -59,11 +34,13 @@ function persistStored(storageKey: string, state: StoredState) {
 export default function AssessmentEngine({ config, step }: { config: AssessmentConfig; step: string }) {
   const router = useRouter();
   const totalQuestions = config.questions.length;
-  const storageKey = `${config.id}-assessment-state`;
+  const storageKey = storageKeyFor(config.id);
 
   const [answers, setAnswers] = useState<AnswerMap>({});
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
+  const [website, setWebsite] = useState("");
+  const [companyProfile, setCompanyProfile] = useState<CompanyProfile | null>(null);
   const [hydrated, setHydrated] = useState(false);
 
   const questionNumber = /^[0-9]+$/.test(step) ? parseInt(step, 10) : null;
@@ -72,15 +49,36 @@ export default function AssessmentEngine({ config, step }: { config: AssessmentC
 
   useEffect(() => {
     const stored = loadStored(storageKey);
-    if (stored) {
-      setAnswers(stored.answers);
-      setName(stored.name);
-      setEmail(stored.email);
-    }
+    setAnswers(stored.answers);
+    setName(stored.name);
+    setEmail(stored.email);
+    setWebsite(stored.website);
+    setCompanyProfile(getCachedProfile(config.id));
     setHydrated(true);
     // Only ever run on mount for this instance - storageKey doesn't change post-mount.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  // If a lookup is still in flight (started on the intro screen) and
+  // hasn't landed in sessionStorage yet, wait briefly for it so a fast
+  // respondent still sees the industry section on first paint. Capped so a
+  // slow/failed lookup never blocks the score itself, which renders
+  // immediately regardless.
+  useEffect(() => {
+    if (!hydrated || step !== "results" || companyProfile) return;
+    const pending = awaitProfile(config.id);
+    if (!pending) return;
+    let cancelled = false;
+    Promise.race([
+      pending,
+      new Promise<null>((resolve) => setTimeout(() => resolve(null), PROFILE_WAIT_MS)),
+    ]).then((profile) => {
+      if (!cancelled && profile) setCompanyProfile(profile);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [hydrated, step, companyProfile, config.id]);
 
   // A direct/stray hit on /results with no completed answers (a stale
   // bookmark, a shared link) has nothing to show - send it back to the
@@ -104,7 +102,7 @@ export default function AssessmentEngine({ config, step }: { config: AssessmentC
     (questionId: string, optionIndex: number) => {
       setAnswers((prev) => {
         const next = { ...prev, [questionId]: optionIndex };
-        persistStored(storageKey, { answers: next, name, email });
+        persistStored(storageKey, { answers: next, name, email, website });
         return next;
       });
       track("Assessment Question Answered", {
@@ -113,7 +111,7 @@ export default function AssessmentEngine({ config, step }: { config: AssessmentC
         option_index: optionIndex,
       });
     },
-    [config.id, storageKey, name, email]
+    [config.id, storageKey, name, email, website]
   );
 
   const goNext = useCallback(() => {
@@ -141,7 +139,7 @@ export default function AssessmentEngine({ config, step }: { config: AssessmentC
     (submittedName: string, submittedEmail: string) => {
       setName(submittedName);
       setEmail(submittedEmail);
-      persistStored(storageKey, { answers, name: submittedName, email: submittedEmail });
+      persistStored(storageKey, { answers, name: submittedName, email: submittedEmail, website });
 
       const computed = computeResult(config, answers);
       track("Assessment Completed", {
@@ -150,17 +148,36 @@ export default function AssessmentEngine({ config, step }: { config: AssessmentC
         composite_score: computed.compositeScore,
       });
 
-      fetch(`/api/${config.id}-assessment`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name: submittedName, email: submittedEmail, answers, company: "" }),
-      }).catch((err) => {
-        console.error(`[${config.id}-assessment] submission failed`, err);
+      // The lookup was kicked off on the intro screen, minutes ago - give it
+      // one last short window in case it's still in flight, then submit with
+      // whatever we have. The email never blocks on a slow/failed lookup.
+      const pending = awaitProfile(config.id);
+      const resolveProfile = pending
+        ? Promise.race([
+            pending,
+            new Promise<CompanyProfile | null>((resolve) => setTimeout(() => resolve(null), PROFILE_WAIT_MS)),
+          ])
+        : Promise.resolve(companyProfile);
+
+      resolveProfile.then((profile) => {
+        fetch(`/api/${config.id}-assessment`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            name: submittedName,
+            email: submittedEmail,
+            answers,
+            company: "",
+            companyProfile: profile,
+          }),
+        }).catch((err) => {
+          console.error(`[${config.id}-assessment] submission failed`, err);
+        });
       });
 
       router.push(`/${config.id}/results`);
     },
-    [answers, config, storageKey, router]
+    [answers, config, storageKey, router, website, companyProfile]
   );
 
   if (!hydrated) return null;
@@ -204,6 +221,8 @@ export default function AssessmentEngine({ config, step }: { config: AssessmentC
             email={email}
             resultLabel={config.resultLabel}
             assessmentId={config.id}
+            config={config}
+            companyProfile={companyProfile}
           />
         </div>
       </div>

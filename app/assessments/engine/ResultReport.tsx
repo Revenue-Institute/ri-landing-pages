@@ -1,4 +1,6 @@
-import type { AssessmentResult } from "@/app/assessments/types";
+import type { AssessmentConfig, AssessmentResult } from "@/app/assessments/types";
+import { buildIndustryContext } from "@/app/assessments/industryContext";
+import type { CompanyProfile } from "@/app/lib/enrichment/companyLookup";
 import { TrackLink } from "@/app/TrackLink";
 
 export default function ResultReport({
@@ -6,12 +8,23 @@ export default function ResultReport({
   email,
   resultLabel,
   assessmentId,
+  config,
+  companyProfile,
 }: {
   result: AssessmentResult;
   email: string;
   resultLabel: string;
   assessmentId: string;
+  config: AssessmentConfig;
+  companyProfile: CompanyProfile | null;
 }) {
+  const industry = buildIndustryContext(config, result, companyProfile);
+  const forLine = industry.companyName
+    ? `For ${industry.companyName}${industry.employeeRange ? `, a ${industry.employeeRange}-person team` : ""}${industry.location ? ` in ${industry.location}` : ""}:`
+    : industry.isConfirmedIndustry
+      ? `For ${industry.industryLabel.toLowerCase()} like yours:`
+      : `Across the ${industry.industryLabel.toLowerCase()} we work with:`;
+
   return (
     <div className="assessment-card">
       <div className="assessment-eyebrow">{resultLabel}</div>
@@ -49,6 +62,15 @@ export default function ResultReport({
           <li key={i}>{line}</li>
         ))}
       </ul>
+
+      <h3 className="assessment-section-label">What this looks like solved</h3>
+      <div className="assessment-industry-block">
+        <p className="assessment-industry-lead">{forLine}</p>
+        <p className="assessment-industry-line">{industry.peerWorkflowLine}</p>
+        <p className="assessment-industry-line">{industry.aiTieIn}</p>
+        <p className="assessment-industry-line assessment-industry-muted">{industry.toolsLine}</p>
+        <p className="assessment-industry-line assessment-industry-muted">{industry.peerStatLine}</p>
+      </div>
 
       <p className="assessment-result-cta-line">{result.ctaLine}</p>
 

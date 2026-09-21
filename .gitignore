@@ -8,4 +8,5 @@ npm-debug.log*
 .env*.local
 vercel*.log
 tsconfig.tsbuildinfo
+.codegraph/
 pro-services-v1.html

@@ -222,4 +222,21 @@ export const pieConfig: AssessmentConfig = {
     ownership: "Name a single owner for exceptions, not a team, so fixes don't wait on a scramble.",
     priorAttempts: "Before trying another tool, figure out why the last attempt didn't stick - that's usually the real blocker.",
   },
+  productName: "PIE",
+  dimensionWorkflowRowIndex: {
+    documentation: 0,
+    ownership: 1,
+    priorAttempts: 2,
+    hoursCost: 3,
+  },
+  dimensionAiTieIn: {
+    documentation: (process, frictionReason) =>
+      `PIE maps your ${process} as it's actually run today - every step, every exception - so ${frictionReason} stops depending on one person's memory to catch it.`,
+    hoursCost: (process, frictionReason) =>
+      `PIE automates the manual steps in your ${process} directly, so the hours ${frictionReason} costs your team every week get returned, not just documented.`,
+    ownership: (process, frictionReason) =>
+      `PIE gives exceptions in your ${process} a system-enforced owner and an audit trail, so ${frictionReason} doesn't land on whoever's closest by default.`,
+    priorAttempts: (process, frictionReason) =>
+      `PIE is built and operated as a running system, not handed off as a recommendation, so ${frictionReason} doesn't get to stall this attempt the way it stalled the last one.`,
+  },
 };

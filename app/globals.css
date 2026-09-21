@@ -987,6 +987,33 @@ a.sr-only:focus-visible {
   height: 8px;
   background: var(--ri-ink);
 }
+/* "What this looks like solved" - the industry peer-benchmark block, real
+   stat/tools/before-after quoted from app/data.ts's vertical data. */
+.assessment-industry-block {
+  background: var(--ri-mist);
+  border-left: 4px solid var(--ri-ink);
+  padding: 18px 20px;
+  margin-bottom: 24px;
+  display: grid;
+  gap: 10px;
+}
+.assessment-industry-lead {
+  font-family: var(--ri-font-display);
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--ri-muted);
+}
+.assessment-industry-line {
+  font-size: 15px;
+  line-height: 1.55;
+  color: var(--ri-body);
+}
+.assessment-industry-muted {
+  color: var(--ri-muted);
+  font-size: 14px;
+}
 .assessment-result-cta-line {
   font-size: 15px;
   line-height: 1.55;

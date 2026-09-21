@@ -216,4 +216,21 @@ export const cleversiteConfig: AssessmentConfig = {
     velocity: "Set a fixed release cadence, even monthly, so improvements don't wait for a spare afternoon.",
     testing: "Run one structured before/after test on your highest-traffic page before changing anything else.",
   },
+  productName: "CleverSite",
+  dimensionWorkflowRowIndex: {
+    analytics: 0,
+    ownership: 1,
+    velocity: 2,
+    testing: 3,
+  },
+  dimensionAiTieIn: {
+    analytics: (goal, obstacle) =>
+      `CleverSite wires event-level tracking straight to revenue and attribution, so improving ${goal} stops being a guess - and ${obstacle} stops being a place to hide from the number.`,
+    ownership: (goal, obstacle) =>
+      `CleverSite gives you a live owner view of what's live, tested, and stalled, so ${goal} doesn't keep losing to ${obstacle} for lack of anyone accountable.`,
+    velocity: (goal, obstacle) =>
+      `CleverSite ships and measures small changes continuously instead of waiting for the next redesign, so a good idea for ${goal} reaches visitors before ${obstacle} has time to stall it.`,
+    testing: (goal, obstacle) =>
+      `CleverSite runs structured before/after tests automatically on every change, so you'll know within days whether it actually moved ${goal} - no more letting ${obstacle} decide you'll never find out.`,
+  },
 };

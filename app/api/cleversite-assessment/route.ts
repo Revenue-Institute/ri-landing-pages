@@ -4,6 +4,8 @@ import { isBlockedEmailDomain } from "@/app/lib/email/blockedDomains";
 import { clientIp, createRateLimiter } from "@/app/lib/email/rateLimit";
 import { cleversiteConfig } from "@/app/assessments/cleversite.config";
 import { computeResult } from "@/app/assessments/scoring";
+import { buildIndustryContext } from "@/app/assessments/industryContext";
+import { sanitizeProfile } from "@/app/lib/enrichment/companyLookup";
 import { buildInternalEmail, buildProspectEmail } from "@/app/assessments/emails/cleversiteEmails";
 import type { AnswerMap } from "@/app/assessments/types";
 
@@ -27,6 +29,7 @@ export async function POST(request: Request) {
   let email: string;
   let answers: unknown;
   let honeypot: string;
+  let companyProfile: ReturnType<typeof sanitizeProfile>;
 
   try {
     const body = await request.json();
@@ -34,6 +37,7 @@ export async function POST(request: Request) {
     email = String(body.email || "").trim();
     answers = body.answers;
     honeypot = String(body.company || "").trim();
+    companyProfile = sanitizeProfile(body.companyProfile);
   } catch {
     return NextResponse.json({ error: "Invalid request body" }, { status: 400 });
   }
@@ -75,9 +79,10 @@ export async function POST(request: Request) {
 
   const resend = new Resend(apiKey);
   const result = computeResult(cleversiteConfig, answers);
+  const industry = buildIndustryContext(cleversiteConfig, result, companyProfile);
 
-  const prospectEmail = buildProspectEmail(result, name);
-  const internalEmail = buildInternalEmail(result, name, email, answers, cleversiteConfig);
+  const prospectEmail = buildProspectEmail(result, name, industry);
+  const internalEmail = buildInternalEmail(result, name, email, answers, cleversiteConfig, industry);
 
   const [prospectOutcome, internalOutcome] = await Promise.allSettled([
     resend.emails.send({
