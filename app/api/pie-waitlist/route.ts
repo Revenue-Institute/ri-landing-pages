@@ -3,6 +3,7 @@ import { Resend } from "resend";
 import { isBlockedEmailDomain } from "@/app/lib/email/blockedDomains";
 import { clientIp, createRateLimiter } from "@/app/lib/email/rateLimit";
 import { buildWaitlistConfirmationEmail, buildWaitlistInternalEmail } from "@/app/waitlist/emails/waitlistEmails";
+import { sendToN8n } from "@/app/lib/n8n";
 
 const TO_EMAIL = "slowisz@revenueinstitute.com";
 const PRODUCT_NAME = "PIE";
@@ -79,5 +80,6 @@ export async function POST(request: Request) {
     console.error("[pie-waitlist] Internal email Resend error:", internalOutcome.value.error);
   }
 
+  sendToN8n({ source: "pie-waitlist", email, product: PRODUCT_NAME });
   return NextResponse.json({ ok: true });
 }

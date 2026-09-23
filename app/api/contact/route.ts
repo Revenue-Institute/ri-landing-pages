@@ -3,6 +3,7 @@ import { Resend } from "resend";
 import { isBlockedEmailDomain } from "@/app/lib/email/blockedDomains";
 import { escapeHtml } from "@/app/lib/email/html";
 import { clientIp, createRateLimiter } from "@/app/lib/email/rateLimit";
+import { sendToN8n } from "@/app/lib/n8n";
 
 const TO_EMAIL = "slowisz@revenueinstitute.com";
 
@@ -91,6 +92,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Failed to send email" }, { status: 500 });
     }
 
+    sendToN8n({ source: "contact", name, email, process: processDesc });
     return NextResponse.json({ ok: true });
   } catch (err) {
     console.error("[contact] Unexpected error:", err);

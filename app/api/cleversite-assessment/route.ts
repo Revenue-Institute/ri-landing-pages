@@ -7,6 +7,7 @@ import { computeResult } from "@/app/assessments/scoring";
 import { buildIndustryContext } from "@/app/assessments/industryContext";
 import { sanitizeProfile } from "@/app/lib/enrichment/companyLookup";
 import { buildInternalEmail, buildProspectEmail } from "@/app/assessments/emails/cleversiteEmails";
+import { sendToN8n } from "@/app/lib/n8n";
 import type { AnswerMap } from "@/app/assessments/types";
 
 const TO_EMAIL = "slowisz@revenueinstitute.com";
@@ -115,5 +116,13 @@ export async function POST(request: Request) {
     console.error("[cleversite-assessment] Internal email Resend error:", internalOutcome.value.error);
   }
 
+  sendToN8n({
+    source: "cleversite-assessment",
+    name,
+    email,
+    answers,
+    companyProfile,
+    result,
+  });
   return NextResponse.json({ ok: true });
 }
