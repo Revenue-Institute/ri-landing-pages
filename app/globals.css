@@ -63,9 +63,12 @@ body {
     padding-bottom: 74px;
   }
 }
-/* The assessment flow renders no such bar - see AssessmentPageChrome. */
+/* Neither the assessment flow nor the waitlist pages render that bar -
+   see AssessmentPageChrome and WaitlistPage. Without this, mobile visitors
+   got 74px of dead space reserved for a bar that was never there. */
 @media (max-width: 899px) {
-  body:has(.assessment-page) {
+  body:has(.assessment-page),
+  body:has(.waitlist-page) {
     padding-bottom: 0;
   }
 }

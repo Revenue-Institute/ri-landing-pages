@@ -6,6 +6,8 @@ import CleverSiteMockup from "./CleverSiteMockup";
 import PieMockup from "./PieMockup";
 import CleverSiteEditingMockup from "./CleverSiteEditingMockup";
 import PieShareMockup from "./PieShareMockup";
+import CleverSiteQueueMockup from "./CleverSiteQueueMockup";
+import PieBottleneckMockup from "./PieBottleneckMockup";
 
 const PRIVACY_URL = "https://revenueinstitute.com/privacy-policy";
 
@@ -23,7 +25,7 @@ export default function WaitlistPage({ config }: { config: WaitlistConfig }) {
   const after = idx >= 0 ? config.headline.slice(idx + config.headlineHighlight.length) : "";
 
   return (
-    <div>
+    <div className="waitlist-page">
       <header style={{ borderBottom: "2px solid var(--ri-ink)" }}>
         <div className="wrap" style={{ padding: "14px var(--pad-x)" }}>
           <Link href="/" aria-label="Revenue Institute home" style={{ display: "inline-flex" }}>
@@ -70,24 +72,34 @@ export default function WaitlistPage({ config }: { config: WaitlistConfig }) {
           </div>
         </section>
 
-        {/* Problem - external + internal, brief */}
+        {/* Problem - external + internal, brief - paired with a villain-side
+            visual so the section doesn't strand text in a narrow left
+            column with dead space beside it (same split-grid pattern as
+            the Plan and Guide sections below). */}
         <section style={{ borderTop: "1px solid var(--ri-hairline)" }}>
           <div className="wrap sec-y-sm">
-            <h2
-              style={{
-                fontSize: "clamp(1.5rem, 3vw, 2rem)",
-                lineHeight: 1.15,
-                letterSpacing: "-0.01em",
-                fontWeight: 800,
-                margin: "0 0 24px",
-                maxWidth: "20ch",
-              }}
-            >
-              {config.problem.headline}
-            </h2>
-            <div style={{ display: "grid", gap: 20, maxWidth: "68ch" }}>
-              <p style={{ fontSize: 18, lineHeight: 1.6, color: "var(--ri-body)", margin: 0 }}>{config.problem.external}</p>
-              <p style={{ fontSize: 18, lineHeight: 1.6, color: "var(--ri-ink)", margin: 0, fontWeight: 600 }}>{config.problem.internal}</p>
+            <div className="split-grid">
+              <div style={{ minWidth: 0 }}>
+                <h2
+                  style={{
+                    fontSize: "clamp(1.5rem, 3vw, 2rem)",
+                    lineHeight: 1.15,
+                    letterSpacing: "-0.01em",
+                    fontWeight: 800,
+                    margin: "0 0 24px",
+                    maxWidth: "20ch",
+                  }}
+                >
+                  {config.problem.headline}
+                </h2>
+                <div style={{ display: "grid", gap: 20, maxWidth: "60ch" }}>
+                  <p style={{ fontSize: 18, lineHeight: 1.6, color: "var(--ri-body)", margin: 0 }}>{config.problem.external}</p>
+                  <p style={{ fontSize: 18, lineHeight: 1.6, color: "var(--ri-ink)", margin: 0, fontWeight: 600 }}>{config.problem.internal}</p>
+                </div>
+              </div>
+              <div style={{ minWidth: 0, alignSelf: "center" }}>
+                {config.id === "cleversite" ? <CleverSiteQueueMockup /> : <PieBottleneckMockup />}
+              </div>
             </div>
           </div>
         </section>
