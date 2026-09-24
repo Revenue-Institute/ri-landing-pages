@@ -9,11 +9,11 @@ import type { WaitlistConfig } from "./types";
 export const cleversiteWaitlistConfig: WaitlistConfig = {
   id: "cleversite",
   productName: "CleverSite",
-  eyebrow: "The first self-optimizing website - coming soon",
-  headline: "The first website that gets better on its own.",
+  eyebrow: "Plugs into your website - coming soon",
+  headline: "Your website that gets better on its own.",
   headlineHighlight: "gets better on its own",
   subhead:
-    "CleverSite learns from how people actually use your site and rewrites the weak parts itself - no redesign, no dev ticket, no waiting on a sprint.",
+    "CleverSite connects to the site you already have, learns from how people actually use it, and rewrites the weak parts itself - no redesign, no dev ticket, no waiting on a sprint.",
   problem: {
     headline: "The dev queue is not a strategy.",
     external:
@@ -28,7 +28,7 @@ export const cleversiteWaitlistConfig: WaitlistConfig = {
   ],
   guideLine:
     "We've watched good marketing teams lose months to a queue they don't control. Revenue Institute built the self-learning system behind Berry Law's +326% lead growth - CleverSite brings that same discipline to your website, every day.",
-  successLine: "Imagine a website that gets smarter every day, whether or not anyone on your team has time to touch it.",
-  failureLine: "The alternative is the one you're living now: a website that stays exactly the same until someone finds the time to change it.",
+  successLine: "Imagine your website getting smarter every day, whether or not anyone on your team has time to touch it.",
+  failureLine: "The alternative is the one you're living now: a site that stays exactly the same until someone finds the time to change it.",
   reassurance: "One email when we launch. No spam, no sales sequence.",
 };
