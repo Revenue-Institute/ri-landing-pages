@@ -28,7 +28,6 @@ export const pieWaitlistConfig: WaitlistConfig = {
   ],
   guideLine:
     "We've seen firms hit a ceiling because one person was the whole system. Revenue Institute's work already returned 136 hours a week to the team at Karbon - PIE brings that same discipline to the process that's costing you the most.",
-  successLine: "Imagine a process that runs exactly the same on the day you're out as the day you're not.",
   failureLine: "Without it, the next time your key person is out is the next fire drill.",
   reassurance: "One email when we launch. No spam, no sales sequence.",
 };

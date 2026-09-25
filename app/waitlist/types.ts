@@ -16,12 +16,15 @@ export interface WaitlistConfig {
   subhead: string;
   problem: {
     headline: string;
+    /** Exact substring of `problem.headline` wrapped in the brand's green highlight block. */
+    headlineHighlight?: string;
     external: string;
     internal: string;
   };
   plan: { step: string; desc: string }[];
   guideLine: string; // empathy + authority, tied to a real proof point
-  successLine: string;
   failureLine: string;
+  /** Exact substring of `failureLine` wrapped in the brand's green highlight block. */
+  failureLineHighlight?: string;
   reassurance: string;
 }

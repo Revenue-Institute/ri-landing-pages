@@ -4,6 +4,7 @@ import { isBlockedEmailDomain } from "@/app/lib/email/blockedDomains";
 import { clientIp, createRateLimiter } from "@/app/lib/email/rateLimit";
 import { buildWaitlistConfirmationEmail, buildWaitlistInternalEmail } from "@/app/waitlist/emails/waitlistEmails";
 import { sendToN8n } from "@/app/lib/n8n";
+import { ATTRIBUTION_KEYS } from "@/app/lib/attribution";
 
 const TO_EMAIL = "slowisz@revenueinstitute.com";
 const PRODUCT_NAME = "CleverSite";
@@ -14,11 +15,20 @@ const rateLimited = createRateLimiter(5, 10 * 60 * 1000);
 export async function POST(request: Request) {
   let email: string;
   let honeypot: string;
+  let attribution: Record<string, string> = {};
 
   try {
     const body = await request.json();
     email = String(body.email || "").trim();
     honeypot = String(body.company || "").trim();
+    if (body.attribution && typeof body.attribution === "object") {
+      attribution = Object.fromEntries(
+        ATTRIBUTION_KEYS.flatMap((key) => {
+          const value = body.attribution[key];
+          return typeof value === "string" && value.length <= 500 ? [[key, value]] : [];
+        }),
+      );
+    }
   } catch {
     return NextResponse.json({ error: "Invalid request body" }, { status: 400 });
   }
@@ -50,36 +60,43 @@ export async function POST(request: Request) {
   const confirmation = buildWaitlistConfirmationEmail(PRODUCT_NAME, ONE_LINER);
   const internal = buildWaitlistInternalEmail(PRODUCT_NAME, email);
 
-  const [confirmOutcome, internalOutcome] = await Promise.allSettled([
-    resend.emails.send({
+  // Confirmation email gates success: only once it's sent do we notify the
+  // team internally and forward to n8n, so a client retry after a transient
+  // failure here can't produce a duplicate internal lead notification.
+  try {
+    const confirmSent = await resend.emails.send({
       from: "Revenue Institute <forms@go.revenueinstitute.com>",
       to: email,
       replyTo: "sales@revenueinstitute.com",
       subject: confirmation.subject,
       text: confirmation.text,
       html: confirmation.html,
-    }),
-    resend.emails.send({
+    });
+    if (confirmSent.error) {
+      console.error("[cleversite-waitlist] Confirmation email Resend error:", confirmSent.error);
+      return NextResponse.json({ error: "We couldn't confirm your place right now. Please try again." }, { status: 502 });
+    }
+  } catch (err) {
+    console.error("[cleversite-waitlist] Confirmation email failed:", err);
+    return NextResponse.json({ error: "We couldn't confirm your place right now. Please try again." }, { status: 502 });
+  }
+
+  try {
+    const internalSent = await resend.emails.send({
       from: "Revenue Institute <forms@go.revenueinstitute.com>",
       to: TO_EMAIL,
       replyTo: email,
       subject: internal.subject,
       text: internal.text,
       html: internal.html,
-    }),
-  ]);
-
-  if (confirmOutcome.status === "rejected") {
-    console.error("[cleversite-waitlist] Confirmation email failed:", confirmOutcome.reason);
-  } else if (confirmOutcome.value.error) {
-    console.error("[cleversite-waitlist] Confirmation email Resend error:", confirmOutcome.value.error);
-  }
-  if (internalOutcome.status === "rejected") {
-    console.error("[cleversite-waitlist] Internal email failed:", internalOutcome.reason);
-  } else if (internalOutcome.value.error) {
-    console.error("[cleversite-waitlist] Internal email Resend error:", internalOutcome.value.error);
+    });
+    if (internalSent.error) {
+      console.error("[cleversite-waitlist] Internal email Resend error:", internalSent.error);
+    }
+  } catch (err) {
+    console.error("[cleversite-waitlist] Internal email failed:", err);
   }
 
-  sendToN8n({ source: "cleversite-waitlist", email, product: PRODUCT_NAME });
+  sendToN8n({ source: "cleversite-waitlist", email, product: PRODUCT_NAME, attribution });
   return NextResponse.json({ ok: true });
 }

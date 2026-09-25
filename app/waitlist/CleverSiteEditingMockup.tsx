@@ -7,9 +7,9 @@
  */
 export default function CleverSiteEditingMockup() {
   const log = [
-    { time: "10:42 AM", text: "Headline rewritten" },
-    { time: "10:44 AM", text: "Broken pricing link fixed" },
-    { time: "10:47 AM", text: "Hero image compressed" },
+    { time: "10:42 AM", text: "Headline rewritten", metric: "+12% engagement" },
+    { time: "10:44 AM", text: "Broken pricing link fixed", metric: "Emergency: Resolved in 10s" },
+    { time: "10:47 AM", text: "Hero image compressed", metric: "Core Vitals: Passed" },
   ];
 
   return (
@@ -145,7 +145,19 @@ export default function CleverSiteEditingMockup() {
             >
               <span style={{ color: "var(--ri-green)", fontSize: 12, flexShrink: 0 }}>&#10003;</span>
               <span style={{ fontFamily: "var(--ri-font-display)", fontSize: 10.5, color: "var(--ri-dark-muted)", whiteSpace: "nowrap" }}>{l.time}</span>
-              <span style={{ color: "var(--ri-dark-text)" }}>{l.text}</span>
+              <span style={{ color: "var(--ri-dark-text)", flex: 1, minWidth: 0 }}>{l.text}</span>
+              <span
+                style={{
+                  fontFamily: "var(--ri-font-display)",
+                  fontSize: 11,
+                  fontWeight: 700,
+                  color: "var(--ri-green)",
+                  flexShrink: 0,
+                  whiteSpace: "nowrap",
+                }}
+              >
+                {l.metric}
+              </span>
             </div>
           ))}
         </div>

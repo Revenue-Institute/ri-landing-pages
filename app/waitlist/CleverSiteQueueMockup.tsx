@@ -6,15 +6,15 @@
  */
 export default function CleverSiteQueueMockup() {
   const tickets = [
-    { id: "DEV-482", label: "Rewrite hero copy", age: "14 days open" },
-    { id: "DEV-479", label: "Fix broken pricing link", age: "9 days open" },
-    { id: "DEV-471", label: "Shorten checkout form", age: "21 days open" },
+    { id: "DEV-482", label: "Rewrite hero copy", age: "14 days overdue" },
+    { id: "DEV-479", label: "Fix broken pricing link", age: "9 days overdue" },
+    { id: "DEV-471", label: "Shorten checkout form", age: "21 days overdue" },
   ];
 
   return (
     <div className="ri-card" aria-hidden="true">
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 18 }}>
-        <span style={{ fontFamily: "var(--ri-font-display)", fontSize: 13, fontWeight: 800 }}>Dev queue</span>
+        <span style={{ fontFamily: "var(--ri-font-display)", fontSize: 13, fontWeight: 800 }}>Waiting on dev</span>
         <span
           style={{
             fontFamily: "var(--ri-font-display)",

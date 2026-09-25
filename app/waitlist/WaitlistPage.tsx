@@ -6,7 +6,6 @@ import CleverSiteMockup from "./CleverSiteMockup";
 import PieMockup from "./PieMockup";
 import CleverSiteEditingMockup from "./CleverSiteEditingMockup";
 import PieShareMockup from "./PieShareMockup";
-import CleverSiteQueueMockup from "./CleverSiteQueueMockup";
 import PieBottleneckMockup from "./PieBottleneckMockup";
 
 const PRIVACY_URL = "https://revenueinstitute.com/privacy-policy";
@@ -19,10 +18,29 @@ const PRIVACY_URL = "https://revenueinstitute.com/privacy-policy";
  * be a Client Component) - much less client JS than the assessment flow.
  */
 export default function WaitlistPage({ config }: { config: WaitlistConfig }) {
+  const isCleverSite = config.id === "cleversite";
   const idx = config.headline.lastIndexOf(config.headlineHighlight);
   const before = idx >= 0 ? config.headline.slice(0, idx) : config.headline;
   const highlight = idx >= 0 ? config.headline.slice(idx, idx + config.headlineHighlight.length) : "";
   const after = idx >= 0 ? config.headline.slice(idx + config.headlineHighlight.length) : "";
+
+  const problemHighlightText = config.problem.headlineHighlight ?? "";
+  const problemIdx = problemHighlightText ? config.problem.headline.indexOf(problemHighlightText) : -1;
+  const problemBefore = problemIdx >= 0 ? config.problem.headline.slice(0, problemIdx) : config.problem.headline;
+  const problemHighlight = problemIdx >= 0 ? config.problem.headline.slice(problemIdx, problemIdx + problemHighlightText.length) : "";
+  const problemAfter = problemIdx >= 0 ? config.problem.headline.slice(problemIdx + problemHighlightText.length) : "";
+  const problemParagraphs = (
+    <div style={{ display: "grid", gap: 20, maxWidth: "60ch" }}>
+      <p style={{ fontSize: 18, lineHeight: 1.6, color: "var(--ri-body)", margin: 0 }}>{config.problem.external}</p>
+      <p style={{ fontSize: 18, lineHeight: 1.6, color: "var(--ri-ink)", margin: 0, fontWeight: 600 }}>{config.problem.internal}</p>
+    </div>
+  );
+
+  const failureHighlightText = config.failureLineHighlight ?? "";
+  const failureIdx = failureHighlightText ? config.failureLine.indexOf(failureHighlightText) : -1;
+  const failureBefore = failureIdx >= 0 ? config.failureLine.slice(0, failureIdx) : config.failureLine;
+  const failureHighlight = failureIdx >= 0 ? config.failureLine.slice(failureIdx, failureIdx + failureHighlightText.length) : "";
+  const failureAfter = failureIdx >= 0 ? config.failureLine.slice(failureIdx + failureHighlightText.length) : "";
 
   return (
     <div className="waitlist-page">
@@ -61,44 +79,50 @@ export default function WaitlistPage({ config }: { config: WaitlistConfig }) {
                 <p style={{ fontSize: "clamp(1.0625rem, 1.7vw, 1.3125rem)", lineHeight: 1.5, color: "var(--ri-body)", margin: "0 0 32px", maxWidth: "48ch" }}>
                   {config.subhead}
                 </p>
+                {isCleverSite && (
+                  <div className="waitlist-control-points" aria-label="How CleverSite works">
+                    <span><b>AI</b> finds the opportunity</span>
+                    <span><b>Experts</b> validate the work</span>
+                    <span><b>You</b> approve meaningful changes</span>
+                  </div>
+                )}
                 <WaitlistForm productId={config.id} productName={config.productName} />
                 <p style={{ fontSize: 13, color: "var(--ri-muted)", marginTop: 14 }}>{config.reassurance}</p>
               </div>
 
               <div style={{ minWidth: 0 }}>
-                {config.id === "cleversite" ? <CleverSiteMockup /> : <PieMockup />}
+                {isCleverSite ? <CleverSiteMockup /> : <PieMockup />}
               </div>
             </div>
           </div>
         </section>
 
-        {/* Problem - external + internal, brief - paired with a villain-side
-            visual so the section doesn't strand text in a narrow left
-            column with dead space beside it (same split-grid pattern as
-            the Plan and Guide sections below). */}
+        {/* Problem - external + internal, brief. CleverSite runs the
+            headline and the two paragraphs as two columns (big statement,
+            supporting text) since its villain-side mockup is hidden; PIE
+            keeps the original villain-side visual pairing. */}
         <section style={{ borderTop: "1px solid var(--ri-hairline)" }}>
           <div className="wrap sec-y-sm">
             <div className="split-grid">
-              <div style={{ minWidth: 0 }}>
+              <div style={{ minWidth: 0, alignSelf: isCleverSite ? "center" : "start" }}>
                 <h2
                   style={{
-                    fontSize: "clamp(1.5rem, 3vw, 2rem)",
-                    lineHeight: 1.15,
+                    fontSize: isCleverSite ? "clamp(2rem, 4.5vw, 3.25rem)" : "clamp(1.5rem, 3vw, 2rem)",
+                    lineHeight: isCleverSite ? 1.1 : 1.15,
                     letterSpacing: "-0.01em",
                     fontWeight: 800,
-                    margin: "0 0 24px",
-                    maxWidth: "20ch",
+                    margin: isCleverSite ? 0 : "0 0 24px",
+                    maxWidth: isCleverSite ? "16ch" : "20ch",
                   }}
                 >
-                  {config.problem.headline}
+                  {problemBefore}
+                  {problemHighlight && <span className="ri-hl">{problemHighlight}</span>}
+                  {problemAfter}
                 </h2>
-                <div style={{ display: "grid", gap: 20, maxWidth: "60ch" }}>
-                  <p style={{ fontSize: 18, lineHeight: 1.6, color: "var(--ri-body)", margin: 0 }}>{config.problem.external}</p>
-                  <p style={{ fontSize: 18, lineHeight: 1.6, color: "var(--ri-ink)", margin: 0, fontWeight: 600 }}>{config.problem.internal}</p>
-                </div>
+                {!isCleverSite && problemParagraphs}
               </div>
               <div style={{ minWidth: 0, alignSelf: "center" }}>
-                {config.id === "cleversite" ? <CleverSiteQueueMockup /> : <PieBottleneckMockup />}
+                {isCleverSite ? problemParagraphs : <PieBottleneckMockup />}
               </div>
             </div>
           </div>
@@ -139,14 +163,15 @@ export default function WaitlistPage({ config }: { config: WaitlistConfig }) {
           <div className="wrap sec-y">
             <div className="split-grid">
               <div style={{ minWidth: 0 }}>
-                <p style={{ fontSize: 18, lineHeight: 1.6, color: "var(--ri-dark-text)", margin: "0 0 32px", maxWidth: "54ch" }}>
-                  {config.guideLine}
-                </p>
                 <div style={{ display: "grid", gap: 20, maxWidth: "54ch" }}>
-                  <p style={{ fontSize: "clamp(1.375rem, 2.6vw, 1.75rem)", lineHeight: 1.35, letterSpacing: "-0.01em", fontWeight: 700, margin: 0 }}>
-                    {config.successLine}
+                  <p style={{ fontSize: 20, lineHeight: 1.6, color: "var(--ri-dark-text)", margin: 0 }}>
+                    {config.guideLine}
                   </p>
-                  <p style={{ fontSize: 15, lineHeight: 1.6, color: "var(--ri-dark-muted)", margin: 0 }}>{config.failureLine}</p>
+                  <p className="ri-callout" style={{ fontSize: 20, lineHeight: 1.6, color: "var(--ri-dark-text)", margin: 0, borderLeftColor: "var(--ri-green)" }}>
+                    {failureBefore}
+                    {failureHighlight && <span className="ri-hl">{failureHighlight}</span>}
+                    {failureAfter}
+                  </p>
                 </div>
               </div>
               <div style={{ minWidth: 0 }}>

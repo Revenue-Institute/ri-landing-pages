@@ -21,9 +21,9 @@ export default function CleverSiteMockup() {
   const linePath = points.map((p, i) => `${i === 0 ? "M" : "L"}${p[0]},${p[1]}`).join(" ");
   const areaPath = `${linePath} L280,56 L0,56 Z`;
   const changes = [
-    { label: "Headline rewritten", lift: "+1.1%" },
-    { label: "CTA moved above the fold", lift: "+0.6%" },
-    { label: "Checkout form shortened", lift: "+0.4%" },
+    { label: "Headline improved", lift: "+1.1%" },
+    { label: "CTA placement optimized", lift: "+0.6%" },
+    { label: "Checkout path simplified", lift: "+0.4%" },
   ];
 
   return (
@@ -80,7 +80,7 @@ export default function CleverSiteMockup() {
             </div>
           </div>
           <div style={{ flex: 1, minWidth: 0, border: "1px solid var(--ri-dark-edge)", padding: "11px 13px" }}>
-            <div style={{ fontSize: 10.5, color: "var(--ri-dark-muted)", marginBottom: 6 }}>Issues auto-fixed</div>
+            <div style={{ fontSize: 10.5, color: "var(--ri-dark-muted)", marginBottom: 6 }}>Opportunities shipped</div>
             <div style={{ display: "flex", alignItems: "baseline", gap: 7 }}>
               <span style={{ fontFamily: "var(--ri-font-display)", fontSize: 20, fontWeight: 800 }}>19</span>
               <span style={{ fontSize: 11, color: "var(--ri-dark-muted)" }}>this month</span>

@@ -9,26 +9,27 @@ import type { WaitlistConfig } from "./types";
 export const cleversiteWaitlistConfig: WaitlistConfig = {
   id: "cleversite",
   productName: "CleverSite",
-  eyebrow: "Plugs into your website - coming soon",
-  headline: "Your website that gets better on its own.",
-  headlineHighlight: "gets better on its own",
+  eyebrow: "Early-Access Waitlist",
+  headline: "Make your website self-aware.",
+  headlineHighlight: "self-aware",
   subhead:
-    "CleverSite connects to the site you already have, learns from how people actually use it, and rewrites the weak parts itself - no redesign, no dev ticket, no waiting on a sprint.",
+    "CleverSite plugs into your existing site, analyzes performance, then creates tests and improvements with your approval.",
   problem: {
-    headline: "The dev queue is not a strategy.",
+    headline: "In the age of AI, your website should optimize itself.",
+    headlineHighlight: "optimize itself",
     external:
-      "Every fix needs a ticket, a sprint, a review. By the time it ships, the traffic pattern that prompted it has already moved on.",
+      "You already have the website data across your Google and marketing tools. You see opportunities for improvement, but only after spending hours sifting through data and planning changes.",
     internal:
-      "You can see exactly what's wrong with the site. You just can't fix it fast enough - and that's the frustrating part.",
+      "Your marketing team deserves a faster path to better SEO, more engagement, and increased conversions in real-time, not weeks later. No more waiting on the next dev sprint or wrangling 12 team members",
   },
   plan: [
-    { step: "Connect your site", desc: "Minutes, not a project. No code, no dev ticket." },
-    { step: "CleverSite learns your site", desc: "It studies real visitor behavior and finds what's actually costing you traffic and conversions." },
-    { step: "It rewrites the fix itself", desc: "Small changes go live automatically, and it keeps learning from what happens next. You stay in control of anything major." },
+    { step: "Connect your site", desc: "CleverSite maps your content, search visibility, visitor behavior, and conversion paths." },
+    { step: "Find the highest-value opportunities", desc: "AI surfaces what is costing you traffic, engagement, and leads; experienced people pressure-test the recommendation." },
+    { step: "A/B, measure, and repeat", desc: "AI implements approved tests, measures the impact, and uses what it learns for the next round." },
   ],
   guideLine:
-    "We've watched good marketing teams lose months to a queue they don't control. Revenue Institute built the self-learning system behind Berry Law's +326% lead growth - CleverSite brings that same discipline to your website, every day.",
-  successLine: "Imagine your website getting smarter every day, whether or not anyone on your team has time to touch it.",
-  failureLine: "The alternative is the one you're living now: a site that stays exactly the same until someone finds the time to change it.",
-  reassurance: "One email when we launch. No spam, no sales sequence.",
+    "Built by the team creating self-learning sites for industry-leaders. Now, that team is using CleverSite to bring that same capability to every marketer.",
+  failureLine: "Without a better system, the opportunities stay in the analytics report and the site keeps underperforming until the next redesign project.",
+  failureLineHighlight: "opportunities stay in the analytics report",
+  reassurance: "For teams responsible for an existing website. One launch email - no spam or sales sequence.",
 };

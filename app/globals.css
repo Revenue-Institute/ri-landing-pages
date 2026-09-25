@@ -426,11 +426,33 @@ a.sr-only:focus-visible {
   grid-template-columns: minmax(0, 1fr);
   gap: clamp(32px, 4vw, 40px);
 }
+
+.waitlist-page {
+  overflow-x: clip;
+}
+.waitlist-control-points {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 18px;
+  margin: -8px 0 24px;
+  font-family: var(--ri-font-display);
+  font-size: 13px;
+  color: var(--ri-body);
+}
+.waitlist-control-points span {
+  white-space: nowrap;
+}
+.waitlist-control-points b {
+  color: var(--ri-ink);
+}
 @media (min-width: 900px) {
   .hero-grid {
     grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr);
     column-gap: 56px;
     align-items: center;
+  }
+  .waitlist-page .hero-grid {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
   }
 }
 

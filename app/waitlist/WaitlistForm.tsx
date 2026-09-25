@@ -3,6 +3,7 @@
 import { useId, useState, type FormEvent } from "react";
 import { track } from "@/app/gtm";
 import { isBlockedEmailDomain } from "@/app/lib/email/blockedDomains";
+import { ATTRIBUTION_KEYS } from "@/app/lib/attribution";
 
 /**
  * Deliberately just an email field - a waitlist is the lowest-friction ask
@@ -31,16 +32,28 @@ export default function WaitlistForm({ productId, productName }: { productId: st
 
     setError("");
     setStatus("submitting");
-    track("LP - Form Attempt", { form_id: `${productId}-waitlist`, email });
+    track("LP - Form Attempt", { form_id: `${productId}-waitlist` });
     try {
+      const params = new URLSearchParams(window.location.search);
+      const attribution = Object.fromEntries(
+        ATTRIBUTION_KEYS.flatMap((key) => {
+          const value = params.get(key);
+          return value ? [[key, value]] : [];
+        }),
+      );
       const res = await fetch(`/api/${productId}-waitlist`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, company: honeypot }),
+        body: JSON.stringify({ email, company: honeypot, attribution }),
       });
-      if (!res.ok) throw new Error("Failed to join waitlist");
+      if (!res.ok) {
+        const body = await res.json().catch(() => null);
+        setStatus("error");
+        if (body?.error) setError(body.error);
+        return;
+      }
       setStatus("success");
-      track("LP - Form Submit", { form_id: `${productId}-waitlist`, email });
+      track("LP - Form Submit", { form_id: `${productId}-waitlist` });
     } catch {
       setStatus("error");
     }
@@ -60,7 +73,7 @@ export default function WaitlistForm({ productId, productName }: { productId: st
   }
 
   return (
-    <form onSubmit={onSubmit} style={{ display: "flex", gap: 10, flexWrap: "wrap" }} noValidate={false}>
+    <form onSubmit={onSubmit} style={{ display: "flex", gap: 10, flexWrap: "wrap", width: "100%", maxWidth: 560 }} noValidate={false}>
       <div style={{ flex: "1 1 220px", minWidth: 0 }}>
         <label htmlFor={emailId} className="sr-only">
           Work email
@@ -95,7 +108,7 @@ export default function WaitlistForm({ productId, productName }: { productId: st
       </div>
 
       <button type="submit" disabled={status === "submitting"} className="ri-btn" style={{ flex: "0 0 auto" }}>
-        {status === "submitting" ? "Joining..." : "Join the waitlist"}
+        {status === "submitting" ? "Joining..." : productId === "cleversite" ? "Request early access" : "Join the waitlist"}
       </button>
 
       <div style={{ flexBasis: "100%", minHeight: 20 }}>
@@ -104,9 +117,9 @@ export default function WaitlistForm({ productId, productName }: { productId: st
             {error}
           </div>
         )}
-        {status === "error" && (
+        {status === "error" && !error && (
           <div style={{ fontSize: 13, color: "var(--ri-alert)", fontFamily: "var(--ri-font-display)", marginTop: 4 }}>
-            Something went wrong. Try again, or email{" "}
+            We couldn't add you right now. Try again, or email{" "}
             <a href="mailto:sales@revenueinstitute.com" style={{ color: "inherit", textDecoration: "underline" }}>
               sales@revenueinstitute.com
             </a>
