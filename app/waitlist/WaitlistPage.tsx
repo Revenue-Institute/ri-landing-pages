@@ -179,7 +179,7 @@ export default function WaitlistPage({ config }: { config: WaitlistConfig }) {
                   <h3 style={{ fontFamily: "var(--ri-font-display)", fontSize: 18, fontWeight: 800, marginBottom: 14 }}>
                     Get on the {config.productName} waitlist
                   </h3>
-                  <WaitlistForm productId={config.id} productName={config.productName} />
+                  <WaitlistForm productId={config.id} productName={config.productName} onInk />
                   <p style={{ fontSize: 13, color: "var(--ri-dark-muted)", marginTop: 14 }}>{config.reassurance}</p>
                 </div>
               </div>

@@ -169,6 +169,7 @@ export default function AssessmentEngine({ config, step }: { config: AssessmentC
             answers,
             company: "",
             companyProfile: profile,
+            url: window.location.href,
           }),
         }).catch((err) => {
           console.error(`[${config.id}-assessment] submission failed`, err);

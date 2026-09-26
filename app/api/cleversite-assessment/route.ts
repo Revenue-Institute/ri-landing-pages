@@ -30,6 +30,7 @@ export async function POST(request: Request) {
   let email: string;
   let answers: unknown;
   let honeypot: string;
+  let url: string;
   let companyProfile: ReturnType<typeof sanitizeProfile>;
 
   try {
@@ -38,6 +39,7 @@ export async function POST(request: Request) {
     email = String(body.email || "").trim();
     answers = body.answers;
     honeypot = String(body.company || "").trim();
+    url = String(body.url || "").trim().slice(0, 2000);
     companyProfile = sanitizeProfile(body.companyProfile);
   } catch {
     return NextResponse.json({ error: "Invalid request body" }, { status: 400 });
@@ -118,8 +120,10 @@ export async function POST(request: Request) {
 
   sendToN8n({
     source: "cleversite-assessment",
+    form: "CleverSite Assessment",
     name,
     email,
+    url,
     answers,
     companyProfile,
     result,

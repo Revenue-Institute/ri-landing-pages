@@ -9,18 +9,21 @@ import { ATTRIBUTION_KEYS } from "@/app/lib/attribution";
 const TO_EMAIL = "slowisz@revenueinstitute.com";
 const PRODUCT_NAME = "CleverSite";
 const ONE_LINER = "CleverSite watches how people actually use your site and ships the fixes automatically - traffic, conversions, and visibility, improving without a redesign project.";
+const CALL_URL = "https://revenueinstitute.com/cleversite-waitlist/schedule?utm_source=waitlist_email&utm_medium=email&utm_campaign=skip_the_line";
 
 const rateLimited = createRateLimiter(5, 10 * 60 * 1000);
 
 export async function POST(request: Request) {
   let email: string;
   let honeypot: string;
+  let url: string;
   let attribution: Record<string, string> = {};
 
   try {
     const body = await request.json();
     email = String(body.email || "").trim();
     honeypot = String(body.company || "").trim();
+    url = String(body.url || "").trim().slice(0, 2000);
     if (body.attribution && typeof body.attribution === "object") {
       attribution = Object.fromEntries(
         ATTRIBUTION_KEYS.flatMap((key) => {
@@ -57,7 +60,7 @@ export async function POST(request: Request) {
   }
 
   const resend = new Resend(apiKey);
-  const confirmation = buildWaitlistConfirmationEmail(PRODUCT_NAME, ONE_LINER);
+  const confirmation = buildWaitlistConfirmationEmail(PRODUCT_NAME, ONE_LINER, CALL_URL);
   const internal = buildWaitlistInternalEmail(PRODUCT_NAME, email);
 
   // Confirmation email gates success: only once it's sent do we notify the
@@ -97,6 +100,6 @@ export async function POST(request: Request) {
     console.error("[cleversite-waitlist] Internal email failed:", err);
   }
 
-  sendToN8n({ source: "cleversite-waitlist", email, product: PRODUCT_NAME, attribution });
+  sendToN8n({ source: "cleversite-waitlist", form: `${PRODUCT_NAME} Waitlist`, email, product: PRODUCT_NAME, url, attribution });
   return NextResponse.json({ ok: true });
 }

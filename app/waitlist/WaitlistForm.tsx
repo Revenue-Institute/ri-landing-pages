@@ -1,6 +1,7 @@
 "use client";
 
 import { useId, useState, type FormEvent } from "react";
+import Link from "next/link";
 import { track } from "@/app/gtm";
 import { isBlockedEmailDomain } from "@/app/lib/email/blockedDomains";
 import { ATTRIBUTION_KEYS } from "@/app/lib/attribution";
@@ -11,7 +12,16 @@ import { ATTRIBUTION_KEYS } from "@/app/lib/attribution";
  * here so the A/B test against the full assessment compares like-quality
  * leads, not just raw signup volume.
  */
-export default function WaitlistForm({ productId, productName }: { productId: string; productName: string }) {
+export default function WaitlistForm({
+  productId,
+  productName,
+  onInk = false,
+}: {
+  productId: string;
+  productName: string;
+  /** True when rendered on a full-bleed ink band (the closing section). */
+  onInk?: boolean;
+}) {
   const [status, setStatus] = useState<"idle" | "submitting" | "success" | "error">("idle");
   const [error, setError] = useState("");
   const uid = useId();
@@ -44,7 +54,7 @@ export default function WaitlistForm({ productId, productName }: { productId: st
       const res = await fetch(`/api/${productId}-waitlist`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, company: honeypot, attribution }),
+        body: JSON.stringify({ email, company: honeypot, attribution, url: window.location.href }),
       });
       if (!res.ok) {
         const body = await res.json().catch(() => null);
@@ -60,14 +70,31 @@ export default function WaitlistForm({ productId, productName }: { productId: st
   }
 
   if (status === "success") {
+    const headingColor = onInk ? "var(--ri-dark-text)" : "var(--ri-ink)";
+    const mutedColor = onInk ? "var(--ri-dark-muted)" : "var(--ri-muted)";
+    const dividerColor = onInk ? "var(--ri-dark-edge)" : "var(--ri-hairline)";
+
     return (
       <div role="status" aria-live="polite" style={{ padding: "14px 0" }}>
-        <div style={{ fontFamily: "var(--ri-font-display)", fontSize: 18, fontWeight: 800, color: "var(--ri-ink)" }}>
+        <div style={{ fontFamily: "var(--ri-font-display)", fontSize: 18, fontWeight: 800, color: headingColor }}>
           You&rsquo;re on the list.
         </div>
-        <div style={{ fontSize: 15, color: "var(--ri-muted)", marginTop: 6 }}>
+        <div style={{ fontSize: 15, color: mutedColor, marginTop: 6 }}>
           We&rsquo;ll email you the moment {productName} is ready.
         </div>
+        {productId === "cleversite" && (
+          <div style={{ fontSize: 14, color: mutedColor, marginTop: 16, paddingTop: 16, borderTop: `1px solid ${dividerColor}` }}>
+            Want in sooner?{" "}
+            <Link
+              href="/cleversite-waitlist/schedule"
+              onClick={() => track("LP - Schedule CTA Click", { form_id: `${productId}-waitlist`, placement: "form_success" })}
+              style={{ color: headingColor, fontWeight: 700, textDecoration: "underline" }}
+            >
+              Skip to the front of the line
+            </Link>{" "}
+            - grab 15 minutes with me about what you need {productName} to do.
+          </div>
+        )}
       </div>
     );
   }

@@ -14,6 +14,7 @@ export async function POST(request: Request) {
   let email: string;
   let processDesc: string;
   let honeypot: string;
+  let url: string;
 
   const contentType = request.headers.get("content-type") || "";
   if (contentType.includes("application/json")) {
@@ -22,12 +23,14 @@ export async function POST(request: Request) {
     email = String(body.email || "").trim();
     processDesc = String(body.process || "").trim();
     honeypot = String(body.company || "").trim();
+    url = String(body.url || "").trim().slice(0, 2000);
   } else {
     const form = await request.formData();
     name = String(form.get("name") || "").trim();
     email = String(form.get("email") || "").trim();
     processDesc = String(form.get("process") || "").trim();
     honeypot = String(form.get("company") || "").trim();
+    url = String(form.get("url") || "").trim().slice(0, 2000);
   }
 
   // A filled honeypot means a bot. Return 200 so it does not learn otherwise.
@@ -92,7 +95,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Failed to send email" }, { status: 500 });
     }
 
-    sendToN8n({ source: "contact", name, email, process: processDesc });
+    sendToN8n({ source: "contact", form: "Homepage Contact Form", name, email, url, process: processDesc });
     return NextResponse.json({ ok: true });
   } catch (err) {
     console.error("[contact] Unexpected error:", err);

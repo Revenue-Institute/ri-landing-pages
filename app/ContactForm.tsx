@@ -71,6 +71,7 @@ export default function ContactForm({
     };
     track("LP - Form Attempt", { form_id: formId, ...formData });
     try {
+      data.set("url", window.location.href);
       const res = await fetch("/api/contact", { method: "POST", body: data });
       if (!res.ok) throw new Error("Failed to send");
       setStatus("success");

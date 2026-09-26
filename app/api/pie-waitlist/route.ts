@@ -4,6 +4,7 @@ import { isBlockedEmailDomain } from "@/app/lib/email/blockedDomains";
 import { clientIp, createRateLimiter } from "@/app/lib/email/rateLimit";
 import { buildWaitlistConfirmationEmail, buildWaitlistInternalEmail } from "@/app/waitlist/emails/waitlistEmails";
 import { sendToN8n } from "@/app/lib/n8n";
+import { ATTRIBUTION_KEYS } from "@/app/lib/attribution";
 
 const TO_EMAIL = "slowisz@revenueinstitute.com";
 const PRODUCT_NAME = "PIE";
@@ -14,11 +15,22 @@ const rateLimited = createRateLimiter(5, 10 * 60 * 1000);
 export async function POST(request: Request) {
   let email: string;
   let honeypot: string;
+  let url: string;
+  let attribution: Record<string, string> = {};
 
   try {
     const body = await request.json();
     email = String(body.email || "").trim();
     honeypot = String(body.company || "").trim();
+    url = String(body.url || "").trim().slice(0, 2000);
+    if (body.attribution && typeof body.attribution === "object") {
+      attribution = Object.fromEntries(
+        ATTRIBUTION_KEYS.flatMap((key) => {
+          const value = body.attribution[key];
+          return typeof value === "string" && value.length <= 500 ? [[key, value]] : [];
+        }),
+      );
+    }
   } catch {
     return NextResponse.json({ error: "Invalid request body" }, { status: 400 });
   }
@@ -80,6 +92,6 @@ export async function POST(request: Request) {
     console.error("[pie-waitlist] Internal email Resend error:", internalOutcome.value.error);
   }
 
-  sendToN8n({ source: "pie-waitlist", email, product: PRODUCT_NAME });
+  sendToN8n({ source: "pie-waitlist", form: `${PRODUCT_NAME} Waitlist`, email, product: PRODUCT_NAME, url, attribution });
   return NextResponse.json({ ok: true });
 }

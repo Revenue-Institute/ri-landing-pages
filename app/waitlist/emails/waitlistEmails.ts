@@ -22,8 +22,19 @@ interface EmailPayload {
  * purpose - there's no result to report yet, just a confirmation and a
  * plain-English reminder of what they signed up for.
  */
-export function buildWaitlistConfirmationEmail(productName: string, oneLiner: string): EmailPayload {
+export function buildWaitlistConfirmationEmail(
+  productName: string,
+  oneLiner: string,
+  callUrl?: string,
+): EmailPayload {
   const subject = `You're on the ${productName} waitlist`;
+
+  const cta = callUrl
+    ? `
+            <p style="margin: 24px 0 0; padding-top: 20px; border-top: 1px solid ${C.hairline}; font-family: ${SERIF}; font-size: 16px; line-height: 1.6; color: ${C.body};">
+              Want in sooner? <a href="${callUrl}" style="color: ${C.ink}; font-weight: 700; text-decoration: underline;">Skip to the front of the line</a> - grab 15 minutes with me and tell me what you need ${escapeHtml(productName)} to do. Early testers get first access and help shape the roadmap.
+            </p>`
+    : "";
 
   const html = `
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background: ${C.mist};">
@@ -32,14 +43,7 @@ export function buildWaitlistConfirmationEmail(productName: string, oneLiner: st
       <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width: 480px;">
         <tr><td style="height: 6px; background: #12d68e;">&nbsp;</td></tr>
         <tr>
-          <td style="background: ${C.white}; padding: 28px 32px 8px;">
-            <span style="font-family: ${SANS}; font-size: 15px; font-weight: 800; letter-spacing: 0.02em; text-transform: uppercase; color: ${C.ink};">
-              Revenue Institute
-            </span>
-          </td>
-        </tr>
-        <tr>
-          <td style="background: ${C.white}; padding: 8px 32px 36px;">
+          <td style="background: ${C.white}; padding: 32px 32px 36px;">
             <h1 style="margin: 20px 0 12px; font-family: ${SANS}; font-size: 22px; font-weight: 800; color: ${C.ink};">
               You&rsquo;re on the list.
             </h1>
@@ -48,7 +52,7 @@ export function buildWaitlistConfirmationEmail(productName: string, oneLiner: st
             </p>
             <p style="margin: 0; font-family: ${SERIF}; font-size: 16px; line-height: 1.6; color: ${C.body};">
               We&rsquo;ll email you the moment ${escapeHtml(productName)} is ready - no spam, no sales sequence in the meantime.
-            </p>
+            </p>${cta}
           </td>
         </tr>
       </table>
@@ -62,6 +66,12 @@ export function buildWaitlistConfirmationEmail(productName: string, oneLiner: st
     oneLiner,
     "",
     `We'll email you the moment ${productName} is ready - no spam, no sales sequence in the meantime.`,
+    ...(callUrl
+      ? [
+          "",
+          `Want in sooner? Skip to the front of the line - grab 15 minutes with me and tell me what you need ${productName} to do: ${callUrl}`,
+        ]
+      : []),
     "",
     "- Revenue Institute",
   ].join("\n");
