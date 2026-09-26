@@ -68,7 +68,7 @@ export async function POST(request: Request) {
   // duplicate lead notification downstream.
   try {
     const confirmSent = await resend.emails.send({
-      from: "Revenue Institute <forms@go.revenueinstitute.com>",
+      from: "CleverSite <noreply@go.cleversite.ai>",
       to: email,
       replyTo: "sales@revenueinstitute.com",
       subject: confirmation.subject,

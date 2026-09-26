@@ -86,7 +86,7 @@ export async function POST(request: Request) {
 
   try {
     const prospectSent = await resend.emails.send({
-      from: "Revenue Institute <forms@go.revenueinstitute.com>",
+      from: "CleverSite <noreply@go.cleversite.ai>",
       to: email,
       replyTo: "sales@revenueinstitute.com",
       subject: prospectEmail.subject,
