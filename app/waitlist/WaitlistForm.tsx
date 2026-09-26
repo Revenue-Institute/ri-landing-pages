@@ -54,7 +54,13 @@ export default function WaitlistForm({
       const res = await fetch(`/api/${productId}-waitlist`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, company: honeypot, attribution, url: window.location.href }),
+        body: JSON.stringify({
+          email,
+          company: honeypot,
+          attribution,
+          url: window.location.href,
+          referrer: document.referrer || undefined,
+        }),
       });
       if (!res.ok) {
         const body = await res.json().catch(() => null);

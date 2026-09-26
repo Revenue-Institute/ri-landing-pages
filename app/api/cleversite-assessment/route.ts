@@ -6,11 +6,9 @@ import { cleversiteConfig } from "@/app/assessments/cleversite.config";
 import { computeResult } from "@/app/assessments/scoring";
 import { buildIndustryContext } from "@/app/assessments/industryContext";
 import { sanitizeProfile } from "@/app/lib/enrichment/companyLookup";
-import { buildInternalEmail, buildProspectEmail } from "@/app/assessments/emails/cleversiteEmails";
+import { buildProspectEmail } from "@/app/assessments/emails/cleversiteEmails";
 import { sendToN8n } from "@/app/lib/n8n";
 import type { AnswerMap } from "@/app/assessments/types";
-
-const TO_EMAIL = "slowisz@revenueinstitute.com";
 
 const rateLimited = createRateLimiter(5, 10 * 60 * 1000);
 
@@ -85,37 +83,21 @@ export async function POST(request: Request) {
   const industry = buildIndustryContext(cleversiteConfig, result, companyProfile);
 
   const prospectEmail = buildProspectEmail(result, name, industry);
-  const internalEmail = buildInternalEmail(result, name, email, answers, cleversiteConfig, industry);
 
-  const [prospectOutcome, internalOutcome] = await Promise.allSettled([
-    resend.emails.send({
+  try {
+    const prospectSent = await resend.emails.send({
       from: "Revenue Institute <forms@go.revenueinstitute.com>",
       to: email,
       replyTo: "sales@revenueinstitute.com",
       subject: prospectEmail.subject,
       text: prospectEmail.text,
       html: prospectEmail.html,
-    }),
-    resend.emails.send({
-      from: "Revenue Institute <forms@go.revenueinstitute.com>",
-      to: TO_EMAIL,
-      replyTo: email,
-      subject: internalEmail.subject,
-      text: internalEmail.text,
-      html: internalEmail.html,
-    }),
-  ]);
-
-  if (prospectOutcome.status === "rejected") {
-    console.error("[cleversite-assessment] Prospect email failed:", prospectOutcome.reason);
-  } else if (prospectOutcome.value.error) {
-    console.error("[cleversite-assessment] Prospect email Resend error:", prospectOutcome.value.error);
-  }
-
-  if (internalOutcome.status === "rejected") {
-    console.error("[cleversite-assessment] Internal email failed:", internalOutcome.reason);
-  } else if (internalOutcome.value.error) {
-    console.error("[cleversite-assessment] Internal email Resend error:", internalOutcome.value.error);
+    });
+    if (prospectSent.error) {
+      console.error("[cleversite-assessment] Prospect email Resend error:", prospectSent.error);
+    }
+  } catch (err) {
+    console.error("[cleversite-assessment] Prospect email failed:", err);
   }
 
   sendToN8n({

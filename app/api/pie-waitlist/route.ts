@@ -2,11 +2,10 @@ import { NextResponse } from "next/server";
 import { Resend } from "resend";
 import { isBlockedEmailDomain } from "@/app/lib/email/blockedDomains";
 import { clientIp, createRateLimiter } from "@/app/lib/email/rateLimit";
-import { buildWaitlistConfirmationEmail, buildWaitlistInternalEmail } from "@/app/waitlist/emails/waitlistEmails";
+import { buildWaitlistConfirmationEmail } from "@/app/waitlist/emails/waitlistEmails";
 import { sendToN8n } from "@/app/lib/n8n";
 import { ATTRIBUTION_KEYS } from "@/app/lib/attribution";
 
-const TO_EMAIL = "slowisz@revenueinstitute.com";
 const PRODUCT_NAME = "PIE";
 const ONE_LINER = "PIE documents your process as it actually runs, catches exceptions automatically, and keeps working even when you're not the one watching it.";
 
@@ -16,6 +15,7 @@ export async function POST(request: Request) {
   let email: string;
   let honeypot: string;
   let url: string;
+  let referrer: string;
   let attribution: Record<string, string> = {};
 
   try {
@@ -23,6 +23,7 @@ export async function POST(request: Request) {
     email = String(body.email || "").trim();
     honeypot = String(body.company || "").trim();
     url = String(body.url || "").trim().slice(0, 2000);
+    referrer = String(body.referrer || "").trim().slice(0, 2000);
     if (body.attribution && typeof body.attribution === "object") {
       attribution = Object.fromEntries(
         ATTRIBUTION_KEYS.flatMap((key) => {
@@ -60,38 +61,23 @@ export async function POST(request: Request) {
 
   const resend = new Resend(apiKey);
   const confirmation = buildWaitlistConfirmationEmail(PRODUCT_NAME, ONE_LINER);
-  const internal = buildWaitlistInternalEmail(PRODUCT_NAME, email);
 
-  const [confirmOutcome, internalOutcome] = await Promise.allSettled([
-    resend.emails.send({
+  try {
+    const confirmSent = await resend.emails.send({
       from: "Revenue Institute <forms@go.revenueinstitute.com>",
       to: email,
       replyTo: "sales@revenueinstitute.com",
       subject: confirmation.subject,
       text: confirmation.text,
       html: confirmation.html,
-    }),
-    resend.emails.send({
-      from: "Revenue Institute <forms@go.revenueinstitute.com>",
-      to: TO_EMAIL,
-      replyTo: email,
-      subject: internal.subject,
-      text: internal.text,
-      html: internal.html,
-    }),
-  ]);
-
-  if (confirmOutcome.status === "rejected") {
-    console.error("[pie-waitlist] Confirmation email failed:", confirmOutcome.reason);
-  } else if (confirmOutcome.value.error) {
-    console.error("[pie-waitlist] Confirmation email Resend error:", confirmOutcome.value.error);
-  }
-  if (internalOutcome.status === "rejected") {
-    console.error("[pie-waitlist] Internal email failed:", internalOutcome.reason);
-  } else if (internalOutcome.value.error) {
-    console.error("[pie-waitlist] Internal email Resend error:", internalOutcome.value.error);
+    });
+    if (confirmSent.error) {
+      console.error("[pie-waitlist] Confirmation email Resend error:", confirmSent.error);
+    }
+  } catch (err) {
+    console.error("[pie-waitlist] Confirmation email failed:", err);
   }
 
-  sendToN8n({ source: "pie-waitlist", form: `${PRODUCT_NAME} Waitlist`, email, product: PRODUCT_NAME, url, attribution });
+  sendToN8n({ source: "pie-waitlist", form: `${PRODUCT_NAME} Waitlist`, email, product: PRODUCT_NAME, url, referrer, attribution });
   return NextResponse.json({ ok: true });
 }

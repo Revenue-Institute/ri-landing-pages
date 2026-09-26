@@ -1,11 +1,7 @@
 import { NextResponse } from "next/server";
-import { Resend } from "resend";
 import { isBlockedEmailDomain } from "@/app/lib/email/blockedDomains";
-import { escapeHtml } from "@/app/lib/email/html";
 import { clientIp, createRateLimiter } from "@/app/lib/email/rateLimit";
 import { sendToN8n } from "@/app/lib/n8n";
-
-const TO_EMAIL = "slowisz@revenueinstitute.com";
 
 const rateLimited = createRateLimiter(5, 10 * 60 * 1000);
 
@@ -58,47 +54,6 @@ export async function POST(request: Request) {
     );
   }
 
-  const apiKey = process.env.RESEND_API_KEY;
-  if (!apiKey) {
-    console.error("[contact] RESEND_API_KEY is not set");
-    return NextResponse.json({ error: "Server not configured" }, { status: 500 });
-  }
-
-  const resend = new Resend(apiKey);
-
-  try {
-    const { error } = await resend.emails.send({
-      from: "Revenue Institute <forms@go.revenueinstitute.com>",
-      to: TO_EMAIL,
-      replyTo: email,
-      subject: `New process inquiry - ${name}`,
-      text: [
-        `Name: ${name}`,
-        `Email: ${email}`,
-        `Process: ${processDesc}`,
-        "",
-        `- Sent from the Revenue Institute landing page`,
-      ].join("\n"),
-      html: [
-        `<div style="font-family: -apple-system, sans-serif; font-size: 15px; line-height: 1.6; color: #111;">`,
-        `<p><strong>Name:</strong> ${escapeHtml(name)}</p>`,
-        `<p><strong>Email:</strong> <a href="mailto:${escapeHtml(email)}">${escapeHtml(email)}</a></p>`,
-        `<p><strong>Process:</strong> ${escapeHtml(processDesc)}</p>`,
-        `<hr style="margin: 20px 0; border: 0; border-top: 1px solid #eee;">`,
-        `<p style="color: #999; font-size: 13px;">Sent from the Revenue Institute landing page</p>`,
-        `</div>`,
-      ].join("\n"),
-    });
-
-    if (error) {
-      console.error("[contact] Resend error:", error);
-      return NextResponse.json({ error: "Failed to send email" }, { status: 500 });
-    }
-
-    sendToN8n({ source: "contact", form: "Homepage Contact Form", name, email, url, process: processDesc });
-    return NextResponse.json({ ok: true });
-  } catch (err) {
-    console.error("[contact] Unexpected error:", err);
-    return NextResponse.json({ error: "Failed to send email" }, { status: 500 });
-  }
+  sendToN8n({ source: "contact", form: "Homepage Contact Form", name, email, url, process: processDesc });
+  return NextResponse.json({ ok: true });
 }

@@ -16,12 +16,13 @@ import type { AssessmentResult, IndustryContext } from "@/app/assessments/types"
  * recipient clicks "show images," so putting the brand identity in an
  * <img> means half of opens see a broken box instead. Text always renders.
  *
- * SITE_URL assumes production at revenueinstitute.com, matching the
- * "forms@go.revenueinstitute.com" sender and PRIVACY_URL already
- * hardcoded elsewhere in this codebase.
+ * SITE_URL points at this app's own production host (start.revenueinstitute.com,
+ * distinct from the root revenueinstitute.com domain PRIVACY_URL points to
+ * elsewhere in this codebase), since #start-form lives on this app's own
+ * homepage.
  */
 
-const SITE_URL = "https://revenueinstitute.com";
+const SITE_URL = "https://start.revenueinstitute.com";
 
 const C = {
   ink: "#0e0d12",
@@ -243,7 +244,7 @@ export function buildResultEmailText({ name, scoreLabel, assessmentName, result,
     industry.peerStatLine,
     "",
     result.ctaLine,
-    "Talk it through, no pitch: https://revenueinstitute.com/#start-form",
+    `Talk it through, no pitch: ${SITE_URL}/#start-form`,
     "Or just reply to this email - a person reads these, not a bot.",
     "",
     `- Sent from the Revenue Institute ${assessmentName} assessment`,

@@ -78,11 +78,3 @@ export function buildWaitlistConfirmationEmail(
 
   return { subject, html, text };
 }
-
-/** Internal notification - deliberately plain, this is a working list, not a designed doc. */
-export function buildWaitlistInternalEmail(productName: string, email: string): EmailPayload {
-  const subject = `New ${productName} waitlist signup - ${email}`;
-  const html = `<p style="font-family: -apple-system, sans-serif; font-size: 15px; color: #111;">New <strong>${escapeHtml(productName)}</strong> waitlist signup: <a href="mailto:${escapeHtml(email)}">${escapeHtml(email)}</a></p>`;
-  const text = `New ${productName} waitlist signup: ${email}`;
-  return { subject, html, text };
-}
