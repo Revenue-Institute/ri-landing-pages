@@ -14,6 +14,8 @@ export interface WaitlistConfig {
   /** Exact substring of `headline` wrapped in the brand's green highlight block. */
   headlineHighlight: string;
   subhead: string;
+  /** Optional explainer video, rendered full-width directly under the hero. */
+  videoUrl?: string;
   problem: {
     headline: string;
     /** Exact substring of `problem.headline` wrapped in the brand's green highlight block. */

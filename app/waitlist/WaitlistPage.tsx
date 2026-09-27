@@ -97,6 +97,24 @@ export default function WaitlistPage({ config }: { config: WaitlistConfig }) {
           </div>
         </section>
 
+        {/* Explainer video - contained, centered, below the fold. */}
+        {config.videoUrl && (
+          <section style={{ borderTop: "1px solid var(--ri-hairline)" }}>
+            <div className="wrap sec-y-sm" style={{ display: "flex", justifyContent: "center" }}>
+              <video
+                src={config.videoUrl}
+                muted
+                autoPlay
+                loop
+                playsInline
+                controls
+                preload="metadata"
+                style={{ display: "block", width: "100%", maxWidth: 900, height: "auto", borderRadius: 12, boxShadow: "0 4px 24px rgba(0,0,0,0.08)" }}
+              />
+            </div>
+          </section>
+        )}
+
         {/* Problem - external + internal, brief. CleverSite runs the
             headline and the two paragraphs as two columns (big statement,
             supporting text) since its villain-side mockup is hidden; PIE
