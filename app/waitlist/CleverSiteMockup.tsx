@@ -7,7 +7,7 @@
  * KPI cards, an actual line chart, a table-style change log) rather than
  * a handful of oversized colored blocks, so it reads as a platform.
  */
-export default function CleverSiteMockup() {
+export default function CleverSiteMockup({ shopify = false }: { shopify?: boolean }) {
   const points: [number, number][] = [
     [0, 42],
     [40, 40],
@@ -20,18 +20,24 @@ export default function CleverSiteMockup() {
   ];
   const linePath = points.map((p, i) => `${i === 0 ? "M" : "L"}${p[0]},${p[1]}`).join(" ");
   const areaPath = `${linePath} L280,56 L0,56 Z`;
-  const changes = [
-    { label: "Headline improved", lift: "+1.1%" },
-    { label: "CTA placement optimized", lift: "+0.6%" },
-    { label: "Checkout path simplified", lift: "+0.4%" },
-  ];
+  const changes = shopify
+    ? [
+        { label: "Product page headline improved", lift: "+1.1%" },
+        { label: "Add-to-cart placement optimized", lift: "+0.6%" },
+        { label: "Checkout path simplified", lift: "+0.4%" },
+      ]
+    : [
+        { label: "Headline improved", lift: "+1.1%" },
+        { label: "CTA placement optimized", lift: "+0.6%" },
+        { label: "Checkout path simplified", lift: "+0.4%" },
+      ];
 
   return (
     <div className="ri-band-ink" style={{ border: "1px solid var(--ri-dark-edge)", overflow: "hidden" }} aria-hidden="true">
       <div style={{ display: "flex", alignItems: "center", gap: 10, padding: "12px 18px", borderBottom: "1px solid var(--ri-dark-edge)" }}>
         <span style={{ width: 8, height: 8, background: "var(--ri-green)", flexShrink: 0 }} />
         <span style={{ fontFamily: "var(--ri-font-display)", fontSize: 12.5, fontWeight: 800 }}>CleverSite</span>
-        <span style={{ fontSize: 12, color: "var(--ri-dark-muted)" }}>/ yourfirm.com</span>
+        <span style={{ fontSize: 12, color: "var(--ri-dark-muted)" }}>/ {shopify ? "yourstore.com" : "yourfirm.com"}</span>
         <div
           style={{
             marginLeft: "auto",

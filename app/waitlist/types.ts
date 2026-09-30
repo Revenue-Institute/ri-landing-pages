@@ -8,6 +8,8 @@
  */
 export interface WaitlistConfig {
   id: "cleversite" | "pie";
+  /** Audience-specific copy variant of the same product (swaps mockup copy). */
+  variant?: "shopify";
   productName: string;
   eyebrow: string;
   headline: string;

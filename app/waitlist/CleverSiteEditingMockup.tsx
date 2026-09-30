@@ -5,12 +5,18 @@
  * being rewritten in place - a browser frame nested inside the app chrome,
  * with one element mid-edit and a timestamped log proving it never stops.
  */
-export default function CleverSiteEditingMockup() {
-  const log = [
-    { time: "10:42 AM", text: "Headline rewritten", metric: "+12% engagement" },
-    { time: "10:44 AM", text: "Broken pricing link fixed", metric: "Emergency: Resolved in 10s" },
-    { time: "10:47 AM", text: "Hero image compressed", metric: "Core Vitals: Passed" },
-  ];
+export default function CleverSiteEditingMockup({ shopify = false }: { shopify?: boolean }) {
+  const log = shopify
+    ? [
+        { time: "10:42 AM", text: "Product title rewritten", metric: "+12% add-to-cart" },
+        { time: "10:44 AM", text: "Broken collection link fixed", metric: "Emergency: Resolved in 10s" },
+        { time: "10:47 AM", text: "Product image compressed", metric: "Core Vitals: Passed" },
+      ]
+    : [
+        { time: "10:42 AM", text: "Headline rewritten", metric: "+12% engagement" },
+        { time: "10:44 AM", text: "Broken pricing link fixed", metric: "Emergency: Resolved in 10s" },
+        { time: "10:47 AM", text: "Hero image compressed", metric: "Core Vitals: Passed" },
+      ];
 
   return (
     <div className="ri-band-ink" style={{ border: "1px solid var(--ri-dark-edge)", overflow: "hidden" }} aria-hidden="true">
@@ -72,7 +78,7 @@ export default function CleverSiteEditingMockup() {
                 whiteSpace: "nowrap",
               }}
             >
-              yourfirm.com/pricing
+              {shopify ? "yourstore.com/products/classic-tee" : "yourfirm.com/pricing"}
             </span>
           </div>
 

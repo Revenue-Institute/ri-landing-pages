@@ -19,6 +19,7 @@ const PRIVACY_URL = "https://revenueinstitute.com/privacy-policy";
  */
 export default function WaitlistPage({ config }: { config: WaitlistConfig }) {
   const isCleverSite = config.id === "cleversite";
+  const isShopify = config.variant === "shopify";
   const idx = config.headline.lastIndexOf(config.headlineHighlight);
   const before = idx >= 0 ? config.headline.slice(0, idx) : config.headline;
   const highlight = idx >= 0 ? config.headline.slice(idx, idx + config.headlineHighlight.length) : "";
@@ -91,7 +92,7 @@ export default function WaitlistPage({ config }: { config: WaitlistConfig }) {
               </div>
 
               <div style={{ minWidth: 0 }}>
-                {isCleverSite ? <CleverSiteMockup /> : <PieMockup />}
+                {isCleverSite ? <CleverSiteMockup shopify={isShopify} /> : <PieMockup />}
               </div>
             </div>
           </div>
@@ -167,7 +168,7 @@ export default function WaitlistPage({ config }: { config: WaitlistConfig }) {
                 ))}
               </div>
               <div style={{ minWidth: 0, alignSelf: "center" }}>
-                {config.id === "cleversite" ? <CleverSiteEditingMockup /> : <PieShareMockup />}
+                {config.id === "cleversite" ? <CleverSiteEditingMockup shopify={isShopify} /> : <PieShareMockup />}
               </div>
             </div>
           </div>
