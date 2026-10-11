@@ -87,7 +87,7 @@ export default function WaitlistPage({ config }: { config: WaitlistConfig }) {
                     <span><b>You</b> approve meaningful changes</span>
                   </div>
                 )}
-                <WaitlistForm productId={config.id} productName={config.productName} />
+                <WaitlistForm productId={config.id} productName={config.productName} ctaLabel={config.ctaLabel} />
                 <p style={{ fontSize: 13, color: "var(--ri-muted)", marginTop: 14 }}>{config.reassurance}</p>
               </div>
 
@@ -174,6 +174,91 @@ export default function WaitlistPage({ config }: { config: WaitlistConfig }) {
           </div>
         </section>
 
+        {/* Outcomes - cold-traffic trust section (what the site handles). */}
+        {config.benefits && config.benefits.length > 0 && (
+          <section style={{ borderTop: "1px solid var(--ri-hairline)", background: "var(--ri-mist)" }}>
+            <div className="wrap sec-y-sm">
+              <p style={{ fontSize: 13, fontFamily: "var(--ri-font-display)", fontWeight: 800, letterSpacing: "0.08em", textTransform: "uppercase", color: "var(--ri-muted)", marginBottom: 22 }}>
+                What a self-learning site handles
+              </p>
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(min(240px, 100%), 1fr))", gap: 16 }}>
+                {config.benefits.map((b) => (
+                  <div key={b.title} className="ri-card">
+                    <div style={{ fontSize: 17, fontWeight: 700, marginBottom: 8 }}>{b.title}</div>
+                    <p style={{ fontSize: 15, lineHeight: 1.55, color: "var(--ri-muted)", margin: 0 }}>{b.desc}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </section>
+        )}
+
+        {/* Proof - established results and quote, laid out like the
+            homepage's case-study pairing (stat left, ink quote card right). */}
+        {config.proof && (
+          <section style={{ borderTop: "1px solid var(--ri-hairline)" }}>
+            <div className="wrap sec-y-sm">
+              <p style={{ fontSize: 13, fontFamily: "var(--ri-font-display)", fontWeight: 800, letterSpacing: "0.08em", textTransform: "uppercase", color: "var(--ri-muted)", marginBottom: 22 }}>
+                Proof from the same team
+              </p>
+              <div className="split-grid" style={{ alignItems: "center" }}>
+                <div style={{ minWidth: 0 }}>
+                  <div className="ri-stat" style={{ fontSize: "clamp(3rem, 5.5vw, 4.25rem)", letterSpacing: "-0.03em", fontWeight: 900 }}>
+                    {config.proof.stat}
+                  </div>
+                  <div style={{ fontSize: 17, lineHeight: 1.55, color: "var(--ri-body)", marginTop: 16, maxWidth: "36ch" }}>
+                    {config.proof.statLabel}
+                  </div>
+                  <div style={{ fontFamily: "var(--ri-font-display)", fontSize: 11, color: "var(--ri-muted)", marginTop: 14, letterSpacing: "0.06em" }}>
+                    {config.proof.source}
+                  </div>
+                </div>
+                <div style={{ minWidth: 0 }}>
+                  <figure className="ri-card ri-band-ink" style={{ margin: 0 }}>
+                    {config.proof.quoteLogo && (
+                      <Image
+                        src={config.proof.quoteLogo.src}
+                        alt=""
+                        width={config.proof.quoteLogo.w}
+                        height={config.proof.quoteLogo.h}
+                        style={{ opacity: 0.9, height: "auto", marginBottom: 20 }}
+                      />
+                    )}
+                    <blockquote style={{ fontSize: "clamp(1.15rem, 2vw, 1.5rem)", lineHeight: 1.4, letterSpacing: "-0.01em", margin: "0 0 18px" }}>
+                      &ldquo;{config.proof.quote}&rdquo;
+                    </blockquote>
+                    <figcaption style={{ fontFamily: "var(--ri-font-display)", fontSize: 12, color: "var(--ri-dark-muted)", letterSpacing: "0.02em" }}>
+                      {config.proof.quoteName}, {config.proof.quoteRole}
+                    </figcaption>
+                  </figure>
+                </div>
+              </div>
+            </div>
+          </section>
+        )}
+
+        {/* FAQ - objection handling as native disclosure rows, no client JS. */}
+        {config.faq && config.faq.length > 0 && (
+          <section style={{ borderTop: "1px solid var(--ri-hairline)" }}>
+            <div className="wrap sec-y-sm">
+              <p style={{ fontSize: 13, fontFamily: "var(--ri-font-display)", fontWeight: 800, letterSpacing: "0.08em", textTransform: "uppercase", color: "var(--ri-muted)", marginBottom: 22 }}>
+                Questions, answered
+              </p>
+              <div className="waitlist-faq">
+                {config.faq.map((f) => (
+                  <details key={f.q}>
+                    <summary>
+                      <span>{f.q}</span>
+                      <span aria-hidden="true" className="faq-mark">+</span>
+                    </summary>
+                    <p>{f.a}</p>
+                  </details>
+                ))}
+              </div>
+            </div>
+          </section>
+        )}
+
         {/* Guide (empathy + authority) + success/failure stakes + closing CTA.
             Two columns (brand.md's split-grid, same pattern as the homepage's
             closing section) so the card doesn't strand a full-bleed ink band
@@ -198,7 +283,7 @@ export default function WaitlistPage({ config }: { config: WaitlistConfig }) {
                   <h3 style={{ fontFamily: "var(--ri-font-display)", fontSize: 18, fontWeight: 800, marginBottom: 14 }}>
                     Get on the {config.productName} waitlist
                   </h3>
-                  <WaitlistForm productId={config.id} productName={config.productName} onInk />
+                  <WaitlistForm productId={config.id} productName={config.productName} ctaLabel={config.ctaLabel} onInk />
                   <p style={{ fontSize: 13, color: "var(--ri-dark-muted)", marginTop: 14 }}>{config.reassurance}</p>
                 </div>
               </div>

@@ -445,6 +445,50 @@ a.sr-only:focus-visible {
 .waitlist-control-points b {
   color: var(--ri-ink);
 }
+
+/* Waitlist FAQ - native disclosure rows, no client JS. */
+.waitlist-faq {
+  max-width: 72ch;
+}
+.waitlist-faq details {
+  border-bottom: 1px solid var(--ri-hairline);
+}
+.waitlist-faq details:first-child {
+  border-top: 1px solid var(--ri-hairline);
+}
+.waitlist-faq summary {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  padding: 18px 0;
+  cursor: pointer;
+  font-family: var(--ri-font-display);
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--ri-ink);
+  list-style: none;
+}
+.waitlist-faq summary::-webkit-details-marker {
+  display: none;
+}
+.waitlist-faq .faq-mark {
+  font-family: var(--ri-font-display);
+  font-weight: 800;
+  font-size: 20px;
+  line-height: 1;
+  transition: transform 150ms ease;
+}
+.waitlist-faq details[open] .faq-mark {
+  transform: rotate(45deg);
+}
+.waitlist-faq details p {
+  margin: 0 0 18px;
+  font-size: 15.5px;
+  line-height: 1.6;
+  color: var(--ri-body);
+  max-width: 60ch;
+}
 @media (min-width: 900px) {
   .hero-grid {
     grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr);

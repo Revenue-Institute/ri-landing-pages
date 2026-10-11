@@ -31,4 +31,20 @@ export interface WaitlistConfig {
   /** Exact substring of `failureLine` wrapped in the brand's green highlight block. */
   failureLineHighlight?: string;
   reassurance: string;
+  /** Optional CTA button label; defaults by productId. */
+  ctaLabel?: string;
+  /** Optional outcome cards ("what a self-learning site handles") between plan and the closing CTA. */
+  benefits?: { title: string; desc: string }[];
+  /** Optional proof block - only stats/quotes already established elsewhere on the site. */
+  proof?: {
+    stat: string;
+    statLabel: string;
+    source: string;
+    quote: string;
+    quoteName: string;
+    quoteRole: string;
+    quoteLogo?: { src: string; w: number; h: number };
+  };
+  /** Optional objection-handling FAQ, rendered as native disclosure rows (no client JS). */
+  faq?: { q: string; a: string }[];
 }

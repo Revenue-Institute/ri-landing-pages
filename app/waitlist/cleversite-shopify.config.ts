@@ -17,7 +17,7 @@ export const cleversiteShopifyWaitlistConfig: WaitlistConfig = {
   subhead:
     "CleverSite is dedicated to optimizing Shopify sites. It plugs into your existing store, analyzes performance, then creates tests and improvements with your approval.",
   videoUrl:
-    "https://mwnumpcaereujcuwczjr.supabase.co/storage/v1/object/public/marketing/Runway_timeline_export_1945fc99-1292-421d-aff4-b6e3f72afd2b.mp4",
+    "https://mwnumpcaereujcuwczjr.supabase.co/storage/v1/object/public/marketing/product_demo.mp4",
   problem: {
     headline: "In the age of AI, your Shopify store should optimize itself.",
     headlineHighlight: "optimize itself",

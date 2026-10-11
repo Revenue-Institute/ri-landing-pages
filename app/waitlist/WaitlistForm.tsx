@@ -15,10 +15,13 @@ import { ATTRIBUTION_KEYS } from "@/app/lib/attribution";
 export default function WaitlistForm({
   productId,
   productName,
+  ctaLabel,
   onInk = false,
 }: {
   productId: string;
   productName: string;
+  /** CTA override; defaults to "Request early access" for cleversite, "Join the waitlist" otherwise. */
+  ctaLabel?: string;
   /** True when rendered on a full-bleed ink band (the closing section). */
   onInk?: boolean;
 }) {
@@ -141,7 +144,7 @@ export default function WaitlistForm({
       </div>
 
       <button type="submit" disabled={status === "submitting"} className="ri-btn" style={{ flex: "0 0 auto" }}>
-        {status === "submitting" ? "Joining..." : productId === "cleversite" ? "Request early access" : "Join the waitlist"}
+        {status === "submitting" ? "Joining..." : ctaLabel ?? (productId === "cleversite" ? "Request early access" : "Join the waitlist")}
       </button>
 
       <div style={{ flexBasis: "100%", minHeight: 20 }}>
