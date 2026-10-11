@@ -8,6 +8,8 @@
  */
 export interface WaitlistConfig {
   id: "cleversite" | "pie";
+  /** Page-identifying lead name sent to n8n (e.g. "CleverSite Shopify"); needed because variants share one API route. */
+  formName?: string;
   /** Audience-specific copy variant of the same product (swaps mockup copy). */
   variant?: "shopify";
   productName: string;

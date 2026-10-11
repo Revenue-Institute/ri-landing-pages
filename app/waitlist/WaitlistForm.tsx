@@ -15,11 +15,14 @@ import { ATTRIBUTION_KEYS } from "@/app/lib/attribution";
 export default function WaitlistForm({
   productId,
   productName,
+  formName,
   ctaLabel,
   onInk = false,
 }: {
   productId: string;
   productName: string;
+  /** Page-identifying lead name forwarded to n8n (e.g. "CleverSite Shopify"). */
+  formName?: string;
   /** CTA override; defaults to "Request early access" for cleversite, "Join the waitlist" otherwise. */
   ctaLabel?: string;
   /** True when rendered on a full-bleed ink band (the closing section). */
@@ -60,6 +63,7 @@ export default function WaitlistForm({
         body: JSON.stringify({
           email,
           company: honeypot,
+          form: formName,
           attribution,
           url: window.location.href,
           referrer: document.referrer || undefined,

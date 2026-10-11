@@ -8,6 +8,7 @@ import type { WaitlistConfig } from "./types";
  */
 export const cleversiteWaitlistConfig: WaitlistConfig = {
   id: "cleversite",
+  formName: "CleverSite General",
   productName: "CleverSite",
   eyebrow: "Early-Access Waitlist",
   headline: "Make your website self-aware.",

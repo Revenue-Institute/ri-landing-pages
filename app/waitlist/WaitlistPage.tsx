@@ -87,7 +87,7 @@ export default function WaitlistPage({ config }: { config: WaitlistConfig }) {
                     <span><b>You</b> approve meaningful changes</span>
                   </div>
                 )}
-                <WaitlistForm productId={config.id} productName={config.productName} ctaLabel={config.ctaLabel} />
+                <WaitlistForm productId={config.id} productName={config.productName} formName={config.formName} ctaLabel={config.ctaLabel} />
                 <p style={{ fontSize: 13, color: "var(--ri-muted)", marginTop: 14 }}>{config.reassurance}</p>
               </div>
 
@@ -283,7 +283,7 @@ export default function WaitlistPage({ config }: { config: WaitlistConfig }) {
                   <h3 style={{ fontFamily: "var(--ri-font-display)", fontSize: 18, fontWeight: 800, marginBottom: 14 }}>
                     Get on the {config.productName} waitlist
                   </h3>
-                  <WaitlistForm productId={config.id} productName={config.productName} ctaLabel={config.ctaLabel} onInk />
+                  <WaitlistForm productId={config.id} productName={config.productName} formName={config.formName} ctaLabel={config.ctaLabel} onInk />
                   <p style={{ fontSize: 13, color: "var(--ri-dark-muted)", marginTop: 14 }}>{config.reassurance}</p>
                 </div>
               </div>

@@ -17,6 +17,7 @@ export async function POST(request: Request) {
   let honeypot: string;
   let url: string;
   let referrer: string;
+  let form: string;
   let attribution: Record<string, string> = {};
 
   try {
@@ -24,6 +25,7 @@ export async function POST(request: Request) {
     email = String(body.email || "").trim();
     honeypot = String(body.company || "").trim();
     url = String(body.url || "").trim().slice(0, 2000);
+    form = String(body.form || "").trim().slice(0, 100);
     referrer = String(body.referrer || "").trim().slice(0, 2000);
     if (body.attribution && typeof body.attribution === "object") {
       attribution = Object.fromEntries(
@@ -84,6 +86,6 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "We couldn't confirm your place right now. Please try again." }, { status: 502 });
   }
 
-  sendToN8n({ source: "cleversite-waitlist", form: `${PRODUCT_NAME} Waitlist`, email, product: PRODUCT_NAME, url, referrer, attribution });
+  sendToN8n({ source: "cleversite-waitlist", form: form || `${PRODUCT_NAME} Waitlist`, email, product: PRODUCT_NAME, url, referrer, attribution });
   return NextResponse.json({ ok: true });
 }

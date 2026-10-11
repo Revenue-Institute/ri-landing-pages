@@ -11,6 +11,7 @@ import type { WaitlistConfig } from "./types";
  */
 export const cleversiteBuildWaitlistConfig: WaitlistConfig = {
   id: "cleversite",
+  formName: "CleverSite Build",
   productName: "CleverSite",
   eyebrow: "Self-learning AI Websites",
   headline: "Your Website Should Optimize Itself.",
